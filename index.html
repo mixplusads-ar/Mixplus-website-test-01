@@ -1,496 +1,781 @@
-/*
-MixPlus — Enhanced Long Landing
-Single-file React component (Tailwind-friendly) intended as a comprehensive starter for
-an attractive long-form landing page for MixPlus (MixPlus — تولیدکننده لوازم خانگی).
+<!doctype html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MixPlus — تجهیزات خانگی</title>
+  <meta name="description" content="MixPlus — kitchen appliances. سینک، گاز، هود، فر" />
+  <!-- Montserrat for English -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!--
+    NOTE about Persian font (Kalameh faNumber):
+    Download the font file (Kalameh-FaNumber.woff2) and upload it to your repo at /media/fonts/Kalameh-FaNumber.woff2
+    Then remove the comment below (and ensure path is correct) or add the @font-face to your global CSS.
 
-Features included:
-- Long, visually rich landing with multiple sections (hero with video + overlay shapes, brand story, product teaser, features, timeline, gallery, testimonials, download CTA, dealers, contact)
-- Language switch (fa / en) with full RTL/LTR direction switching
-- Light / Dark theme toggle (defaults to light). Accent color: #0fa99c
-- Product teasers with category rollout (Sink & Gas have sub-rollout items). Clicking product card -> product detail route
-- Product hover image swap and detail view (no purchase)
-- Prominent Catalog download button
-- Social icons (Instagram, YouTube, Aparat, Telegram bot, LinkedIn)
-- Footer includes factory address
-- Animations (entrance, parallax-like subtle movement, hover micro-interactions)
-- Fonts: Montserrat (EN via Google) + instructions to add Kalameh faNumber for Persian (local files required)
-- Full instructions inside the file about how to change text, images, assets, and deploy to GitHub Pages / Netlify
-
-HOW TO USE:
-- Paste into a React project (Create React App or Vite). Tailwind is recommended for exact visuals.
-- Replace placeholder media (video, images, logo, pdf) in /public/media or with CDN links.
-- Add Kalameh faNumber font files to /public/fonts and declare @font-face in your global CSS (instructions below).
-
-Notes:
-- This file uses inline styles and Tailwind classes. If you don't use Tailwind, adapt the classes to your CSS.
-- Routing here is simple hash-based. For production use React Router or Next.js for SEO.
-
-
-*/
-
-import React, { useEffect, useMemo, useState } from 'react';
-
-const ACCENT = '#0fa99c';
-const videoUrl = '/media/hero-abstract.mp4'; // replace with your hero video
-const logoUrl = '/media/mixplus-logo.svg'; // replace with logo
-const catalogUrl = '/media/mixplus-catalog.pdf'; // replace with catalog pdf
-
-const PRODUCTS = [
-  {
-    id: 'sink-01', category: 'Sink', categoryFa: 'سینک', title: 'Deluxe Stainless Sink', titleFa: 'سینک استیل لوکس', images: ['/media/sink-01-1.jpg','/media/sink-01-2.jpg'], short: 'Premium stainless sink with soundproofing.', shortFa: 'سینک استیل با عایق صوتی و طراحی مدرن.', specs: { Material: 'Stainless Steel 304', Dimensions: '80x50 cm' }
-  },
-  {
-    id: 'gas-01', category: 'Gas', categoryFa: 'گاز', title: 'ProCook Gas Hob', titleFa: 'گاز پروکوک', images: ['/media/gas-01-1.jpg','/media/gas-01-2.jpg'], short: '4-burner gas hob with auto-ignition.', shortFa: 'صفحه گاز 4 شعله با جرقه‌زن اتوماتیک.', specs: { Burners: '4', Surface: 'Tempered Glass' }
-  },
-  { id: 'hood-01', category: 'Hood', categoryFa: 'هود', title: 'SilentFlow Hood', titleFa: 'هود سایلنت فلو', images: ['/media/hood-01-1.jpg'], short: 'Low-noise extraction hood.', shortFa: 'هود با مکش قوی و نویز پایین.', specs: { Power: '220W' } },
-  { id: 'oven-01', category: 'Oven', categoryFa: 'فر', title: 'SmartBake Oven', titleFa: 'فر اسمارت‌بیک', images: ['/media/oven-01-1.jpg'], short: 'Convection oven with digital control.', shortFa: 'فر با کنترل دیجیتال و گردش هوای یکنواخت.', specs: { Capacity: '70L' } }
-];
-
-function useDir(lang) { return useMemo(() => (lang === 'fa' ? 'rtl' : 'ltr'), [lang]); }
-
-export default function MixPlusLongLanding() {
-  const [lang, setLang] = useState('fa'); // default Persian
-  const dir = useDir(lang);
-  const [theme, setTheme] = useState('light'); // default light
-  const [route, setRoute] = useState(window.location.hash.replace('#','') || '/');
-  const [hoverImage, setHoverImage] = useState({});
-
-  useEffect(() => {
-    const onHash = () => setRoute(window.location.hash.replace('#','') || '/');
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('dir', dir);
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.style.setProperty('--accent', ACCENT);
-    if (theme === 'dark') {
-      document.documentElement.style.setProperty('--bg', '#000000');
-      document.documentElement.style.setProperty('--surface', '#0f1111');
-      document.documentElement.style.setProperty('--text', '#e6e6e6');
-    } else {
-      document.documentElement.style.setProperty('--bg', '#ffffff');
-      document.documentElement.style.setProperty('--surface', '#ffffff');
-      document.documentElement.style.setProperty('--text', '#0b0b0b');
+    Example (already included in style below, just ensure file exists at /media/fonts/Kalameh-FaNumber.woff2):
+      @font-face {
+        font-family: 'Kalameh';
+        src: url('/media/fonts/Kalameh-FaNumber.woff2') format('woff2');
+        font-weight: 400 800;
+        font-style: normal;
+        font-display: swap;
+      }
+  -->
+  <style>
+    /* Brand accent */
+    :root {
+      --accent: #0fa99c;
+      --bg-light: #ffffff;
+      --surface-light: #ffffff;
+      --text-light: #0b0b0b;
+      --bg-dark: #000000;
+      --surface-dark: #0f1111;
+      --text-dark: #e6e6e6;
+      --transition: 220ms ease;
     }
-  }, [dir, theme]);
-
-  const t = (en, fa) => (lang === 'fa' ? fa : en);
-
-  const categories = [
-    { key: 'Sink', label: t('Sink','سینک'), subs: [t('Single Bowl','تک لگن'), t('Double Bowl','دو لگن')] },
-    { key: 'Gas', label: t('Gas','گاز'), subs: [t('Built-in','توکار'), t('Freestanding','ایستاده')] },
-    { key: 'Hood', label: t('Hood','هود'), subs: [] },
-    { key: 'Oven', label: t('Oven','فر'), subs: [] }
-  ];
-
-  const openCategory = (cat) => { window.location.hash = `/products?cat=${encodeURIComponent(cat)}`; };
-
-  const Logo = () => (
-    <div className="flex items-center gap-3">
-      <img src={logoUrl} alt="MixPlus" className="h-12 w-auto" />
-      <div className="hidden sm:block">
-        <div className="font-extrabold text-lg">MixPlus</div>
-        <div className="text-xs opacity-80">{t('Home Appliances','تجهیزات خانگی')}</div>
-      </div>
-    </div>
-  );
-
-  const Social = () => (
-    <div className="flex items-center gap-3">
-      <a href="https://instagram.com/yourbrand" target="_blank" rel="noreferrer" aria-label="Instagram" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">IG</a>
-      <a href="https://youtube.com/yourbrand" target="_blank" rel="noreferrer" aria-label="YouTube" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">YT</a>
-      <a href="https://aparat.com/yourbrand" target="_blank" rel="noreferrer" aria-label="Aparat" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">AP</a>
-      <a href="https://t.me/yourbot" target="_blank" rel="noreferrer" aria-label="Telegram" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">TG</a>
-      <a href="https://linkedin.com/company/yourbrand" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">IN</a>
-    </div>
-  );
-
-  // Hero: big video, geometric shapes, blended gradient, strong headline, CTA
-  const Hero = () => (
-    <header className="relative overflow-hidden" style={{ background: 'var(--bg)' }}>
-      <div className="absolute inset-0 -z-10">
-        <video src={videoUrl} autoPlay muted loop playsInline className="w-full h-full object-cover brightness-90" />
-        <div className="absolute inset-0" style={{ background: theme === 'dark' ? 'linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.6))' : 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02))' }} />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        <nav className="flex items-center justify-between">
-          <Logo />
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-3 bg-[rgba(255,255,255,0.02)] rounded-full px-3 py-1">
-              {categories.map(c => (
-                <div key={c.key} className="relative group">
-                  <button onClick={() => openCategory(c.key)} className="px-3 py-2 rounded-full text-sm font-medium hover:text-[var(--accent)] transition">{c.label}</button>
-                  {c.subs.length > 0 && (
-                    <div className={`absolute ${dir==='rtl'?'right-0':'left-0'} top-full mt-2 w-44 bg-[var(--surface)] rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transform group-hover:translate-y-0 transition-all`}>
-                      <ul className="p-2">
-                        {c.subs.map(s => <li key={s}><button className="block w-full text-sm py-1">{s}</button></li>)}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <a href={catalogUrl} download className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium shadow" style={{ background: ACCENT, color: '#fff' }}>{t('Download Catalog','دانلود کاتالوگ')}</a>
-
-            <div className="flex items-center gap-2">
-              <button onClick={() => setTheme(t => t==='light'?'dark':'light')} className="p-2 rounded-full" aria-label="Toggle theme">{theme==='light'?'🌞':'🌙'}</button>
-              <select aria-label="Language" value={lang} onChange={e=>setLang(e.target.value)} className="px-2 py-1 rounded">
-                <option value="fa">FA</option>
-                <option value="en">EN</option>
-              </select>
-            </div>
-          </div>
-        </nav>
-
-        <div className={`mt-12 max-w-5xl ${dir==='rtl'?'text-right':'text-left'}`}>
-          <div className="inline-flex items-center gap-3 mb-4">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: 'rgba(15,169,156,0.12)', color: ACCENT }}>{t('New Collection','مجموعه جدید')}</span>
-            <div className="text-sm opacity-80">{t('Crafted for modern kitchens','طراحی شده برای آشپزخانه‌های مدرن')}</div>
-          </div>
-
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight" style={{ color: 'var(--text)' }}>{t('Where innovation meets kitchen','جایی که نوآوری با آشپزخانه ملاقات می‌کند')}</h1>
-          <p className="mt-4 text-lg md:text-xl opacity-90 max-w-2xl">{t('MixPlus blends timeless materials, precise engineering and elegant design to craft appliances that elevate daily life.','میکس پلاس مواد ماندگار، مهندسی دقیق و طراحی لطیف را ترکیب می‌کند تا محصولاتی بسازد که کیفیت زندگی روزانه را ارتقا دهند.')}</p>
-
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a href="#/about" className="px-6 py-3 rounded-3xl font-semibold shadow" style={{ background: ACCENT, color: '#fff' }}>{t('Discover Brand','آشنایی با برند')}</a>
-            <a href="#/products" className="px-6 py-3 rounded-3xl border font-semibold" style={{ borderColor: 'rgba(15,169,156,0.12)', color: 'var(--text)' }}>{t('Explore Products','مشاهده محصولات')}</a>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Decorative curved panel */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 -translate-y-6 pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent, var(--bg))' }} />
-    </header>
-  );
-
-  const About = () => (
-    <section className="max-w-7xl mx-auto px-6 py-20">
-      <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6">
-          <h2 className="text-3xl font-bold">{t('A legacy of craft & care','میراثی از صنعت و دقت')}</h2>
-          <p className="text-lg opacity-90">{t('Since our founding, MixPlus has focused on durable materials and careful engineering. From the factory to your kitchen, our products reflect rigorous testing and refined design language.','از آغاز، میکس پلاس روی متریال با دوام و مهندسی دقیق تمرکز کرده است. از کارخانه تا آشپزخانه شما، محصولات ما نتیجهٔ تست‌های دقیق و زبان طراحی پالوده‌اند.')}</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-            <div className="p-4 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.08)' }}>
-              <div className="font-semibold">{t('Sustainable materials','متریال پایدار')}</div>
-              <div className="text-sm opacity-80 mt-1">{t('Recyclable steel and low-impact packaging.','استیل قابل بازیافت و بسته‌بندی کم‌اثر.')}</div>
-            </div>
-            <div className="p-4 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.08)' }}>
-              <div className="font-semibold">{t('R&D & Certification','تحقیق و توسعه')}</div>
-              <div className="text-sm opacity-80 mt-1">{t('Quality tests and certifications for safety and performance.','تست‌های کیفیت و گواهی‌ها برای ایمنی و عملکرد.')}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative">
-          <div className="rounded-xl overflow-hidden shadow-lg">
-            <img src="/media/brand-factory.jpg" alt="factory" className="w-full h-96 object-cover" />
-          </div>
-          <div className="absolute top-6 left-6 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <div className="text-xs opacity-80">{t('Factory Tour','بازدید کارخانه')}</div>
-            <div className="font-semibold">{t('See how we build','نگاهی به فرآیند تولید')}</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  const ProductTeaser = () => (
-    <section className="max-w-7xl mx-auto px-6 py-16 bg-[var(--surface)] rounded-2xl mx-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold">{t('Featured products','محصولات منتخب')}</h3>
-        <a href="#/products" className="text-sm opacity-80">{t('See all products','مشاهده همه')}</a>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {PRODUCTS.map(p => (
-          <div key={p.id} className="bg-gradient-to-tr from-[rgba(15,169,156,0.04)] to-transparent rounded-xl p-4 shadow group cursor-pointer" onClick={()=>window.location.hash=`/product/${p.id}`}>
-            <div className="relative h-44 rounded overflow-hidden">
-              <img src={hoverImage[p.id] || p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" onMouseEnter={() => setHoverImage(prev=>({...prev,[p.id]:p.images[1]||p.images[0]}))} onMouseLeave={() => setHoverImage(prev=>({...prev,[p.id]:undefined}))} />
-            </div>
-            <div className="mt-3">
-              <div className="font-semibold">{lang==='fa'?p.titleFa:p.title}</div>
-              <div className="text-sm opacity-80">{lang==='fa'?p.shortFa:p.short}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-
-  const Features = () => (
-    <section className="max-w-7xl mx-auto px-6 py-20">
-      <h3 className="text-2xl font-bold mb-6">{t('Why MixPlus','چرا میکس پلاس')}</h3>
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.06)' }}>
-          <div className="text-3xl font-bold mb-2">{t('Precision','دقت')}</div>
-          <div className="text-sm opacity-80">{t('Precision-engineered components for lasting performance.','قطعات مهندسی‌شده برای عملکرد پایدار.')}</div>
-        </div>
-        <div className="p-6 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.06)' }}>
-          <div className="text-3xl font-bold mb-2">{t('Design','طراحی')}</div>
-          <div className="text-sm opacity-80">{t('Minimalist aesthetic that fits modern kitchens.','زیبایی‌شناسی مینیمال مناسب آشپزخانه‌های مدرن.')}</div>
-        </div>
-        <div className="p-6 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.06)' }}>
-          <div className="text-3xl font-bold mb-2">{t('Support','پشتیبانی')}</div>
-          <div className="text-sm opacity-80">{t('Nationwide service network and fast spare parts.','شبکه خدمات سراسری و قطعات یدکی سریع.')}</div>
-        </div>
-      </div>
-    </section>
-  );
-
-  const Timeline = () => (
-    <section className="max-w-7xl mx-auto px-6 py-20 bg-[rgba(15,169,156,0.02)] rounded-2xl mx-6">
-      <h3 className="text-2xl font-bold mb-6">{t('Our story','داستان ما')}</h3>
-      <div className="space-y-8">
-        <div className="flex items-start gap-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)] text-white font-semibold">1998</div>
-          <div>
-            <div className="font-semibold">{t('Founded','تأسیس')}</div>
-            <div className="text-sm opacity-80">{t('Started as a small workshop and grew into a national brand.','شروع به‌عنوان یک کارگاه کوچک و رشد تا تبدیل‌شدن به یک برند ملی.')}</div>
-          </div>
-        </div>
-        <div className="flex items-start gap-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)] text-white font-semibold">2010</div>
-          <div>
-            <div className="font-semibold">{t('Export & Expansion','صادرات و توسعه')}</div>
-            <div className="text-sm opacity-80">{t('Expanded product lines and began exporting.','گسترش خطوط محصول و آغاز صادرات.')}</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  const Gallery = () => (
-    <section className="max-w-7xl mx-auto px-6 py-20">
-      <h3 className="text-2xl font-bold mb-6">{t('Gallery','گالری')}</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <img src="/media/gallery-1.jpg" className="w-full h-44 object-cover rounded" />
-        <img src="/media/gallery-2.jpg" className="w-full h-44 object-cover rounded" />
-        <img src="/media/gallery-3.jpg" className="w-full h-44 object-cover rounded" />
-        <img src="/media/gallery-4.jpg" className="w-full h-44 object-cover rounded" />
-      </div>
-    </section>
-  );
-
-  const CTA = () => (
-    <section className="max-w-7xl mx-auto px-6 py-20 bg-[var(--accent)] text-white rounded-2xl mx-6">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div>
-          <h3 className="text-2xl font-bold">{t('Get the digital catalog','کاتالوگ دیجیتال را دریافت کنید')}</h3>
-          <p className="opacity-90 mt-2">{t('Download the full MixPlus catalog with specifications and installation guides.','کاتالوگ کامل میکس پلاس همراه با مشخصات و راهنمای نصب را دانلود کنید.')}</p>
-        </div>
-        <div className="flex gap-3">
-          <a href={catalogUrl} download className="px-6 py-3 rounded-full bg-white text-[var(--accent)] font-semibold">{t('Download','دانلود')}</a>
-          <a href="#/dealers" className="px-6 py-3 rounded-full border border-white/30">{t('Find a dealer','یافتن نمایندگی')}</a>
-        </div>
-      </div>
-    </section>
-  );
-
-  const DealersContact = () => (
-    <section className="max-w-7xl mx-auto px-6 py-20">
-      <div className="grid md:grid-cols-2 gap-8">
-        <div>
-          <h4 className="text-xl font-semibold">{t('Authorized Dealers','نمایندگی های مجاز')}</h4>
-          <p className="mt-3 text-sm opacity-80">{t('We have a national network of authorized dealers. Find your nearest one.','ما شبکه ملی نمایندگی‌های مجاز داریم. نزدیک‌ترین نمایندگی را بیابید.')}</p>
-          <ul className="mt-4 text-sm space-y-2">
-            <li>• {t('Dealer City 1','نمایندگی — شهر ۱')}</li>
-            <li>• {t('Dealer City 2','نمایندگی — شهر ۲')}</li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-xl font-semibold">{t('Contact Us','تماس با ما')}</h4>
-          <p className="mt-3 text-sm opacity-80">{t('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
-          <p className="mt-1 text-sm opacity-80">{t('Email: support@mixplus.example','ایمیل: support@mixplus.example')}</p>
-        </div>
-      </div>
-    </section>
-  );
-
-  const Footer = () => (
-    <footer className="mt-12" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <div className="flex items-center gap-3"><img src={logoUrl} alt="MixPlus" className="h-10" /><div className="font-semibold">MixPlus</div></div>
-          <p className="mt-3 text-sm opacity-80">{t('Kitchen appliances designed to last.','تجهیزات آشپزخانه طراحی‌شده برای ماندگاری.')}</p>
-          <div className="mt-4"><Social /></div>
-        </div>
-        <div>
-          <h4 className="font-semibold">{t('Quick Links','لینک‌های سریع')}</h4>
-          <ul className="mt-3 space-y-2 text-sm opacity-90">
-            <li><a href="#/products">{t('Products','محصولات')}</a></li>
-            <li><a href="#/services">{t('After Sales','خدمات پس از فروش')}</a></li>
-            <li><a href="#/dealers">{t('Dealers','نمایندگی‌ها')}</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="font-semibold">{t('Factory Address','آدرس کارخانه')}</h4>
-          <p className="mt-3 text-sm opacity-90">{t('123 Industrial Zone, City Name, Country','منطقه صنعتی ۱۲۳، شهر، کشور')}</p>
-          <p className="mt-2 text-sm">{t('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
-        </div>
-      </div>
-      <div className="text-center py-4 text-xs opacity-80">© {new Date().getFullYear()} MixPlus</div>
-    </footer>
-  );
-
-  // Product pages
-  const ProductsPage = ({ queryCat }) => {
-    const filtered = queryCat ? PRODUCTS.filter(p=>p.category===queryCat) : PRODUCTS;
-    return (
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <h2 className="text-2xl font-bold">{t('Products','محصولات')}</h2>
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map(p => (
-            <div key={p.id} className="bg-[var(--surface)] rounded-xl p-4 shadow group hover:shadow-xl transition cursor-pointer" onClick={()=>window.location.hash=`/product/${p.id}`}>
-              <div className="relative h-44 rounded overflow-hidden">
-                <img src={hoverImage[p.id]||p.images[0]} alt={p.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" onMouseEnter={()=>setHoverImage(prev=>({...prev,[p.id]:p.images[1]||p.images[0]}))} onMouseLeave={()=>setHoverImage(prev=>({...prev,[p.id]:undefined}))} />
-              </div>
-              <div className="mt-3">
-                <div className="font-semibold">{lang==='fa'?p.titleFa:p.title}</div>
-                <div className="text-sm opacity-80">{lang==='fa'?p.shortFa:p.short}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    );
-  };
-
-  const ProductDetail = ({ id }) => {
-    const p = PRODUCTS.find(x=>x.id===id);
-    if(!p) return <div className="p-8">{t('Product not found','محصول یافت نشد')}</div>;
-    return (
-      <section className="max-w-5xl mx-auto px-6 py-12">
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <div className="rounded-xl overflow-hidden h-96"><img src={hoverImage[p.id]||p.images[0]} alt={p.title} className="w-full h-full object-cover" /></div>
-            <div className="flex gap-3 mt-3">
-              {p.images.map((img,idx)=> <button key={idx} onClick={()=>setHoverImage(prev=>({...prev,[p.id]:img}))} className="w-20 h-14 rounded overflow-hidden border"><img src={img} className="w-full h-full object-cover" /></button>)}
-            </div>
-          </div>
-          <div>
-            <h3 className="text-2xl font-bold">{lang==='fa'?p.titleFa:p.title}</h3>
-            <p className="mt-3 opacity-90">{lang==='fa'?p.shortFa:p.short}</p>
-            <div className="mt-6">
-              <h4 className="font-semibold">{t('Specifications','مشخصات')}</h4>
-              <div className="mt-2 space-y-2">
-                {Object.entries(p.specs).map(([k,v])=> <div key={k} className="flex justify-between border-b py-2"><div className="font-medium">{k}</div><div className="opacity-80">{v}</div></div>)}
-              </div>
-            </div>
-            <div className="mt-6">
-              <a href={catalogUrl} download className="px-4 py-2 rounded bg-[var(--accent)] text-white">{t('Download brochure','دانلود بروشور')}</a>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  };
-
-  const renderRoute = () => {
-    if (route === '/' || route === '') return (
-      <>
-        <About />
-        <ProductTeaser />
-        <Features />
-        <Timeline />
-        <Gallery />
-        <CTA />
-        <DealersContact />
-      </>
-    );
-    if (route.startsWith('/products')) {
-      const params = new URLSearchParams(route.split('?')[1]||'');
-      const cat = params.get('cat');
-      return <ProductsPage queryCat={cat} />;
+    html { box-sizing: border-box; }
+    *,*::before,*::after{ box-sizing: inherit; }
+    body {
+      margin:0;
+      font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: var(--surface-light);
+      color: var(--text-light);
+      transition: background var(--transition), color var(--transition);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      min-height:100vh;
     }
-    if (route.startsWith('/product/')) {
-      const id = route.split('/')[2];
-      return <ProductDetail id={id} />;
-    }
-    if (route === '/about') return <section className="max-w-5xl mx-auto px-6 py-12"><h2 className="text-2xl font-bold">{t('About MixPlus','درباره میکس پلاس')}</h2><p className="mt-3">{t('Detailed about content here.','متن معرفی مفصل در اینجا.')}</p></section>;
-    if (route === '/services') return <section className="max-w-5xl mx-auto px-6 py-12"><h2>{t('After Sales Services','خدمات پس از فروش')}</h2></section>;
-    if (route === '/dealers') return <section className="max-w-5xl mx-auto px-6 py-12"><h2>{t('Authorized Dealers','نمایندگی های مجاز')}</h2></section>;
-    return <section className="p-8">{t('Page not found','صفحه مورد نظر یافت نشد')}</section>;
-  };
 
-  return (
-    <div className="min-h-screen font-sans" style={{ background: 'var(--bg)', color: 'var(--text)', transition: 'background 0.25s ease' }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
-        :root{--accent:${ACCENT}}
-        html[dir='rtl']{direction:rtl}
-        .font-sans{font-family: ${lang==='fa'?"'Kalameh', 'Tahoma', 'Vazirmatn', sans-serif":"'Montserrat', 'Helvetica Neue', Arial, sans-serif"};}
-        a{transition: all 180ms ease}
-      `}</style>
-
-      <Hero />
-
-      <main>
-        {renderRoute()}
-      </main>
-
-      <Footer />
-
-      {/* Developer notes (hidden visually) */}
-      <div style={{display:'none'}}>README: To change text, edit t('EN','FA') helper calls. To add products edit PRODUCTS at top. Replace media files at /public/media. Add Kalameh font files to /public/fonts and declare @font-face in global CSS. Deploy: build and push to GitHub Pages or Netlify. For exact steps see project README you create when ready.</div>
-    </div>
-  );
-}
-
-/*
-Detailed developer checklist (copy into your project README):
-
-1) Fonts
-- Montserrat is loaded via Google Fonts import in the component. For Persian use Kalameh faNumber:
-  - Put Kalameh-FaNumber.woff2 into /public/fonts/
-  - In your global CSS (e.g., index.css) add:
+    /* Persian font face (uncomment after uploading the file) */
     @font-face {
       font-family: 'Kalameh';
-      src: url('/fonts/Kalameh-FaNumber.woff2') format('woff2');
+      src: url('/media/fonts/Kalameh-FaNumber.woff2') format('woff2');
       font-weight: 400 800;
       font-style: normal;
       font-display: swap;
     }
-  - Ensure the Persian copy uses font-family 'Kalameh'.
 
-2) Assets
-- Place hero video at /public/media/hero-abstract.mp4
-- Replace /media/* placeholders with your actual images.
+    /* Utility */
+    .container { max-width:1200px; margin:0 auto; padding:0 18px; }
+    .flex { display:flex; } .items-center{align-items:center;} .justify-between{justify-content:space-between;}
+    .gap-2{gap:8px;} .gap-3{gap:12px;} .gap-4{gap:16px;}
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:24px; cursor:pointer; border:1px solid transparent; transition:all var(--transition); }
+    a { color: inherit; text-decoration:none; }
+    .muted { opacity:0.8; font-size:0.95rem; }
 
-3) Adding/Editing Products
-- Edit the PRODUCTS array at top. Each product: {id, category, categoryFa, title, titleFa, images:[...], short, shortFa, specs:{...}}
-- For hover image add second image in images array.
+    /* Header & hero */
+    header.hero { position:relative; overflow:hidden; padding-bottom:36px; }
+    header .video-bg { position:absolute; inset:0; z-index:-2; overflow:hidden; }
+    header .video-bg video { width:100%; height:100%; object-fit:cover; display:block; filter:brightness(.88); }
+    header .overlay { position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.28)); pointer-events:none; }
 
-4) Localization
-- Strings use t(EN, FA). Search-replace to edit. For large projects use i18next.
+    nav.topbar { padding:20px 0; }
+    .logo { display:flex; align-items:center; gap:12px; font-weight:700; }
+    .logo img { height:44px; width:auto; display:block; }
 
-5) Theme persistence
-- To persist theme, replace useState('light') with a localStorage-aware initializer and call localStorage.setItem when theme toggles.
+    .nav-right { display:flex; align-items:center; gap:10px; }
 
-6) Deploy to GitHub Pages (quick, using Vite):
-- Create repo, add code, push
-- In package.json add:
-  "homepage": "https://<username>.github.io/<repo>",
-  "scripts": { "predeploy": "npm run build", "deploy": "gh-pages -d dist" }
-- Install gh-pages and run npm run deploy
+    .menu { display:flex; align-items:center; gap:10px; padding:6px; border-radius:999px; background:rgba(255,255,255,0.02); }
+    .menu button { background:none; border:0; padding:8px 12px; border-radius:999px; cursor:pointer; color:inherit; }
+    .menu button:hover { color:var(--accent); }
 
-7) Netlify deploy:
-- Push repo to GitHub. Create site on Netlify and connect repo, set build command (npm run build) and publish directory (dist or build).
+    /* rollouts */
+    .rollout { position:relative; }
+    .rollout-list { position:absolute; top:calc(100% + 8px); min-width:200px; background:var(--surface); border-radius:10px; box-shadow:0 10px 30px rgba(2,6,23,0.18); padding:8px; display:none; z-index:40; }
+    .rollout:hover .rollout-list { display:block; }
+    .rollout-list button { display:block; width:100%; padding:8px; text-align:left; background:none; border:0; border-radius:6px; cursor:pointer; }
+    .rollout-list button:hover { background: rgba(15,169,156,0.06); }
 
-8) RTL/LTR correctness
-- The component sets dir attr on html. Check layout and adjust margins/paddings where needed.
+    .hero-content { padding:60px 0 120px 0; max-width:900px; }
+    h1 { font-size:36px; margin:0 0 12px; line-height:1.02; }
+    p.lead { font-size:18px; margin:0 0 18px; color:inherit; opacity:0.9; }
 
-9) Accessibility
-- Add alt text to all images and implement aria labels.
+    /* Product teaser grid */
+    section.products { padding:48px 0; }
+    .grid { display:grid; grid-template-columns: repeat(1,1fr); gap:18px; }
+    @media(min-width:640px){ .grid{ grid-template-columns: repeat(2,1fr);} }
+    @media(min-width:1000px){ .grid{ grid-template-columns: repeat(3,1fr);} }
 
-10) Next steps
-- Move routing to React Router
-- Use a headless CMS (Netlify CMS, Strapi, Sanity) or a simple JSON file + admin to manage products.
+    .card { background:linear-gradient(180deg, rgba(15,169,156,0.02), transparent); border-radius:12px; padding:12px; overflow:hidden; box-shadow:0 6px 20px rgba(2,6,23,0.06); cursor:pointer; transition:transform var(--transition), box-shadow var(--transition); }
+    .card:hover { transform:translateY(-6px); box-shadow:0 14px 40px rgba(2,6,23,0.12); }
+    .card .thumb { height:200px; overflow:hidden; border-radius:8px; }
+    .card img { width:100%; height:100%; object-fit:cover; display:block; transition:transform var(--transition); }
+    .card:hover img { transform: scale(1.04); }
 
-*/
+    .specs { margin-top:12px; font-size:14px; opacity:0.95; }
+
+    /* big CTA */
+    .cta { padding:28px; border-radius:12px; margin:28px 0; display:flex; justify-content:space-between; align-items:center; gap:16px; background:var(--accent); color:#fff; }
+    .cta .btn-white { background:#fff; color:var(--accent); border-radius:999px; padding:10px 18px; font-weight:600; }
+
+    /* footer */
+    footer { padding:28px 0 48px 0; margin-top:28px; background:transparent; color:inherit; border-top:1px solid rgba(0,0,0,0.04); }
+
+    /* Product detail view */
+    .product-detail { padding:32px 0; }
+    .detail-grid { display:grid; gap:16px; grid-template-columns:1fr; }
+    @media(min-width:900px){ .detail-grid { grid-template-columns: 1fr 1fr; } }
+    .thumbnails { display:flex; gap:8px; margin-top:12px; }
+    .thumb-btn { width:72px; height:54px; overflow:hidden; border-radius:8px; border:1px solid rgba(0,0,0,0.06); cursor:pointer; }
+    .thumb-btn img { width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* small utilities */
+    .muted-small { font-size:0.92rem; opacity:0.8; }
+    .icon-btn { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; background:rgba(0,0,0,0.03); border:0; cursor:pointer; }
+
+    /* Theme dark */
+    html[data-theme="dark"] body {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+    html[data-theme="dark"] .rollout-list { background: var(--surface-dark); color: var(--text-dark); }
+    html[data-theme="dark"] .menu { background: rgba(255,255,255,0.02); }
+    html[data-theme="dark"] .card { box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+
+    /* RTL support: when html[dir='rtl'] apply different alignments */
+    html[dir='rtl'] .hero-content { text-align:right; }
+    html[dir='rtl'] .logo { direction: rtl; }
+    html[dir='rtl'] .menu { direction: rtl; }
+
+    /* small animations */
+    .fade-up { transform: translateY(8px); opacity:0; animation:fadeUp 600ms forwards; }
+    @keyframes fadeUp { to { transform:translateY(0); opacity:1; } }
+
+    /* accessible focus */
+    :focus { outline: 3px solid rgba(15,169,156,0.18); outline-offset:3px; }
+
+    /* subtle responsive tweaks */
+    @media(max-width:720px){
+      .hero-content { padding-top:36px; }
+      h1 { font-size:28px; }
+      .card .thumb { height:160px; }
+    }
+
+    /* small helper for hidden */
+    .hidden { display:none !important; }
+
+    /* small footer grid */
+    .footer-grid { display:grid; grid-template-columns:1fr; gap:16px; }
+    @media(min-width:800px){ .footer-grid { grid-template-columns:1fr 1fr 1fr; } }
+
+    /* small social icons text fallback */
+    .social a { padding:8px; border-radius:8px; display:inline-block; }
+  </style>
+</head>
+<body>
+
+<!--
+  MixPlus Single-file index.html
+  -----------------------------------------
+  How to use:
+  1) Save this file as index.html in the root of your GitHub repo.
+  2) Create folder 'media' in repo root and upload:
+     - hero.mp4 (hero video)
+     - hero-poster.jpg (video poster image)
+     - mixplus-logo.svg (logo)
+     - product images (sink-01-1.jpg, sink-01-2.jpg, gas-01-1.jpg, gas-01-2.jpg, etc.)
+     - catalog pdf: mixplus-catalog.pdf
+     - optional fonts: /media/fonts/Kalameh-FaNumber.woff2
+  3) In GitHub: Settings -> Pages -> Source: main / (root) -> Save.
+  4) Wait a minute and open: https://<username>.github.io/<repo>/
+
+  Editing content:
+  - All product definitions & texts are inside the <script> PRODUCTS array (search for "PRODUCTS").
+  - To add a product: add an object with id, category, title/titleFa, images array, short/shortFa, specs object, optional subcategory.
+  - To change logo/video/catalog: replace files in /media and keep names or edit the variables videoSrc/logoSrc/catalogSrc in the script.
+-->
+
+<header class="hero" id="top">
+  <div class="video-bg" aria-hidden="true">
+    <!-- Provide both webm and mp4 if possible; fallback to poster -->
+    <video id="heroVideo" autoplay muted loop playsinline poster="/media/hero-poster.jpg">
+      <source src="/media/hero.webm" type="video/webm">
+      <source src="/media/hero.mp4" type="video/mp4">
+      <!-- If user doesn't provide video, fallback CSS background will be used -->
+    </video>
+    <div class="overlay"></div>
+  </div>
+
+  <div class="container">
+    <nav class="topbar flex items-center justify-between" role="navigation" aria-label="Topbar">
+      <div class="flex items-center gap-3">
+        <a href="#/" class="logo" id="logoLink">
+          <img src="/media/mixplus-logo.svg" alt="MixPlus" id="logoImg">
+          <div class="hidden" id="brandText"><span style="font-weight:800;">MixPlus</span><div class="muted">تجهیزات خانگی</div></div>
+        </a>
+      </div>
+
+      <div class="nav-right">
+        <div class="menu" role="menubar" aria-label="Products Menu">
+          <div class="rollout" style="position:relative;">
+            <button aria-haspopup="true">محصولات</button>
+            <div class="rollout-list" id="productRollout" role="menu" aria-label="Product categories">
+              <!-- JS will render category buttons here -->
+            </div>
+          </div>
+
+          <a href="#/services"><button>خدمات پس از فروش</button></a>
+          <a href="#/dealers"><button>نمایندگی‌ها</button></a>
+          <a id="catalogDownload" href="/media/mixplus-catalog.pdf" download><button>دانلود کاتالوگ</button></a>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-left:12px;">
+          <div class="social" aria-hidden="false">
+            <a href="https://instagram.com/yourbrand" target="_blank" rel="noreferrer" title="Instagram">IG</a>
+            <a href="https://youtube.com/yourbrand" target="_blank" rel="noreferrer" title="YouTube">YT</a>
+            <a href="https://aparat.com/yourbrand" target="_blank" rel="noreferrer" title="Aparat">AP</a>
+            <a href="https://t.me/yourbrand_bot" target="_blank" rel="noreferrer" title="Telegram Bot">TG</a>
+            <a href="https://linkedin.com/company/yourbrand" target="_blank" rel="noreferrer" title="LinkedIn">IN</a>
+          </div>
+
+          <button class="icon-btn" id="themeToggle" title="Toggle theme">🌞</button>
+
+          <select id="langSelect" aria-label="Change language">
+            <option value="fa">فارسی</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+    </nav>
+
+    <div class="hero-content fade-up">
+      <div class="badge" style="display:inline-block;background:rgba(15,169,156,0.12);color:var(--accent);padding:6px 10px;border-radius:999px;font-weight:600;">مجموعه جدید</div>
+      <h1 id="headline">طراحی‌شده برای آشپزخانه شما</h1>
+      <p class="lead" id="subheadline">میکس پلاس ترکیبی از طراحی مدرن، مواد باکیفیت و مهندسی دقیق برای محصولات آشپزخانه.</p>
+      <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="#/about" class="btn" style="background:var(--accent);color:#fff;">آشنایی با میکس پلاس</a>
+        <a href="#/products" class="btn" style="border:1px solid rgba(15,169,156,0.12);">مشاهده محصولات</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="main">
+  <!-- About / Intro -->
+  <section id="about" style="padding:32px 0;">
+    <div style="display:grid;grid-template-columns:1fr;gap:18px;">
+      <div>
+        <h2 id="aboutTitle">میکس پلاس — برتری در طراحی</h2>
+        <p id="aboutText" class="muted">ما زیبایی مدرن را با متریال با دوام و مهندسی دقیق ترکیب می‌کنیم تا محصولاتی بسازیم که پایدار بمانند.</p>
+      </div>
+      <div style="border-radius:12px;overflow:hidden;">
+        <img src="/media/brand-hero-photo.jpg" alt="MixPlus" style="width:100%;height:360px;object-fit:cover;border-radius:12px;">
+      </div>
+    </div>
+  </section>
+
+  <!-- Products teaser -->
+  <section id="products" class="products" aria-labelledby="productsHeading">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <h3 id="productsHeading">محصولات منتخب</h3>
+      <a href="#/products" class="muted-small">مشاهده همه</a>
+    </div>
+
+    <div id="productGrid" class="grid" aria-live="polite">
+      <!-- JS will populate product cards here -->
+    </div>
+  </section>
+
+  <!-- CTA for catalog -->
+  <section style="padding:12px 0;">
+    <div class="cta">
+      <div>
+        <div style="font-weight:700;font-size:18px;">کاتالوگ دیجیتال میکس پلاس</div>
+        <div class="muted-small">دانلود کاتالوگ کامل شامل مشخصات و راهنمای نصب</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <a id="ctaDownload" href="/media/mixplus-catalog.pdf" download class="btn btn-white">دانلود</a>
+        <a href="#/dealers" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.18);color:#fff;">نمایندگی‌ها</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product detail area (rendered dynamically) -->
+  <section id="productDetail" class="product-detail hidden" aria-live="polite"></section>
+
+  <!-- Dealers & Contact -->
+  <section id="dealers" style="padding:32px 0;">
+    <h3>نمایندگی‌های مجاز</h3>
+    <p class="muted-small">شبکه گسترده نمایندگی در سراسر کشور. برای اطلاعات بیشتر با پشتیبانی تماس بگیرید.</p>
+  </section>
+
+</main>
+
+<footer class="container">
+  <div class="footer-grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="/media/mixplus-logo.svg" alt="MixPlus" style="height:44px;">
+        <div style="font-weight:700;">MixPlus</div>
+      </div>
+      <p class="muted-small" style="margin-top:8px;">تجهیزات آشپزخانه طراحی‌شده برای ماندگاری.</p>
+      <div style="margin-top:10px;" class="social">
+        <a href="https://instagram.com/yourbrand" target="_blank" rel="noreferrer">اینستاگرام</a>
+        <a href="https://youtube.com/yourbrand" target="_blank" rel="noreferrer">یوتیوب</a>
+        <a href="https://aparat.com/yourbrand" target="_blank" rel="noreferrer">آپارات</a>
+      </div>
+    </div>
+
+    <div>
+      <h4>لینک‌های سریع</h4>
+      <ul style="list-style:none;padding:0;margin-top:8px;">
+        <li><a href="#/products">محصولات</a></li>
+        <li><a href="#/services">خدمات پس از فروش</a></li>
+        <li><a href="#/dealers">نمایندگی‌ها</a></li>
+        <li><a href="/media/mixplus-catalog.pdf" download>دانلود کاتالوگ</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>آدرس کارخانه</h4>
+      <p class="muted-small">منطقه صنعتی ۱۲۳، شهر، کشور</p>
+      <p class="muted-small">تلفن: ۰۲۱-۱۲۳۴۵۶۷۸</p>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:18px;font-size:13px;color:inherit;opacity:0.8;">© <span id="year"></span> MixPlus</div>
+</footer>
+
+<!-- -------------------------------
+     JavaScript: language, routing,
+     products data, theme, media handling
+     ------------------------------- -->
+<script>
+  // ----------------------------
+  // Config / Asset variables
+  // ----------------------------
+  const logoSrc = '/media/mixplus-logo.svg';
+  const videoSrcMp4 = '/media/hero.mp4';      // put your hero mp4 here
+  const videoSrcWebm = '/media/hero.webm';    // optional webm
+  const heroPoster = '/media/hero-poster.jpg';
+  const catalogSrc = '/media/mixplus-catalog.pdf';
+
+  // Accent color - change if needed (keeps UI consistent)
+  const ACCENT = '#0fa99c';
+
+  // ----------------------------
+  // Products array (edit here to add/modify products)
+  // Each product: id, category, categoryFa, title, titleFa, images[], short, shortFa, specs:{}, optional subcategory
+  // Images should be uploaded to /media/ and referenced here (e.g., /media/sink-01-1.jpg)
+  // ----------------------------
+  const PRODUCTS = [
+    {
+      id: 'sink-01',
+      category: 'Sink',
+      categoryFa: 'سینک',
+      title: 'Deluxe Stainless Sink',
+      titleFa: 'سینک استیل لوکس',
+      images: ['/media/sink-01-1.jpg','/media/sink-01-2.jpg'],
+      short: 'Premium stainless sink with soundproofing.',
+      shortFa: 'سینک استیل با عایق صوتی و طراحی مدرن.',
+      specs: { Material: 'Stainless Steel 304', Dimensions: '80x50 cm' },
+      subcategory: 'Single Bowl'
+    },
+    {
+      id: 'gas-01',
+      category: 'Gas',
+      categoryFa: 'گاز',
+      title: 'ProCook Gas Hob',
+      titleFa: 'گاز پروکوک',
+      images: ['/media/gas-01-1.jpg','/media/gas-01-2.jpg'],
+      short: '4-burner gas hob with auto-ignition.',
+      shortFa: 'صفحه گاز 4 شعله با جرقه‌زن اتوماتیک.',
+      specs: { Burners: '4', Surface: 'Tempered Glass' },
+      subcategory: 'Built-in'
+    },
+    {
+      id: 'hood-01',
+      category: 'Hood',
+      categoryFa: 'هود',
+      title: 'SilentFlow Hood',
+      titleFa: 'هود سایلنت فلو',
+      images: ['/media/hood-01-1.jpg'],
+      short: 'Low-noise extraction hood.',
+      shortFa: 'هود با مکش قوی و نویز پایین.',
+      specs: { Power: '220W' }
+    },
+    {
+      id: 'oven-01',
+      category: 'Oven',
+      categoryFa: 'فر',
+      title: 'SmartBake Oven',
+      titleFa: 'فر اسمارت‌بیک',
+      images: ['/media/oven-01-1.jpg'],
+      short: 'Convection oven with digital control.',
+      shortFa: 'فر با کنترل دیجیتال و گردش هوای یکنواخت.',
+      specs: { Capacity: '70L' }
+    }
+  ];
+
+  // ----------------------------
+  // Categories & subs (for rollout menu)
+  // Modify labels as needed.
+  // ----------------------------
+  const CATEGORIES = [
+    { key: 'Sink', labelEn: 'Sink', labelFa: 'سینک', subs: ['Single Bowl','Double Bowl','Accessories'] },
+    { key: 'Gas', labelEn: 'Gas', labelFa: 'گاز', subs: ['Built-in','Freestanding'] },
+    { key: 'Hood', labelEn: 'Hood', labelFa: 'هود', subs: [] },
+    { key: 'Oven', labelEn: 'Oven', labelFa: 'فر', subs: [] }
+  ];
+
+  // ----------------------------
+  // State
+  // ----------------------------
+  let state = {
+    lang: 'fa',         // default language: 'fa' or 'en'
+    theme: 'light',     // 'light' or 'dark'
+    hoverImageMap: {},  // temporary map productId -> hover image src
+    route: window.location.hash || '#/'
+  };
+
+  // ----------------------------
+  // Helper: translation function
+  // ----------------------------
+  function t(en,fa) { return state.lang === 'fa' ? (fa||en) : en; }
+
+  // ----------------------------
+  // DOM refs
+  // ----------------------------
+  const productGrid = document.getElementById('productGrid');
+  const productRollout = document.getElementById('productRollout');
+  const langSelect = document.getElementById('langSelect');
+  const themeToggle = document.getElementById('themeToggle');
+  const headlineEl = document.getElementById('headline');
+  const subheadlineEl = document.getElementById('subheadline');
+  const aboutTitle = document.getElementById('aboutTitle');
+  const aboutText = document.getElementById('aboutText');
+  const productDetail = document.getElementById('productDetail');
+  const logoImg = document.getElementById('logoImg');
+  const catalogDownload = document.getElementById('catalogDownload');
+  const ctaDownload = document.getElementById('ctaDownload');
+
+  // ----------------------------
+  // Initialize UI
+  // ----------------------------
+  function init() {
+    // assets
+    if (logoImg) logoImg.src = logoSrc;
+    const heroVideo = document.getElementById('heroVideo');
+    if (heroVideo) {
+      // set sources if provided
+      const s1 = heroVideo.querySelector('source[type="video/webm"]');
+      const s2 = heroVideo.querySelector('source[type="video/mp4"]');
+      if (s1) s1.src = videoSrcWebm;
+      if (s2) s2.src = videoSrcMp4;
+      heroVideo.poster = heroPoster;
+      heroVideo.load();
+    }
+    // download links
+    if (catalogDownload) catalogDownload.href = catalogSrc;
+    if (ctaDownload) ctaDownload.href = catalogSrc;
+
+    // set year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // load persisted theme/lang if present
+    const savedTheme = localStorage.getItem('mixplus_theme');
+    const savedLang = localStorage.getItem('mixplus_lang');
+    if (savedTheme) state.theme = savedTheme;
+    if (savedLang) state.lang = savedLang;
+
+    applyTheme();
+    applyLang();
+
+    // render menus + products
+    renderCategoryRollout();
+    renderProducts();
+
+    // listen to hash changes
+    window.addEventListener('hashchange', onHashChange);
+    onHashChange();
+
+    // lang select event
+    langSelect.value = state.lang;
+    langSelect.addEventListener('change', (e) => {
+      state.lang = e.target.value;
+      localStorage.setItem('mixplus_lang', state.lang);
+      applyLang();
+      renderCategoryRollout();
+      renderProducts();
+      onHashChange(); // re-render detail if open
+    });
+
+    // theme toggle
+    themeToggle.addEventListener('click', () => {
+      state.theme = state.theme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('mixplus_theme', state.theme);
+      applyTheme();
+    });
+  }
+
+  // ----------------------------
+  // Apply theme (light/dark)
+  // ----------------------------
+  function applyTheme() {
+    document.documentElement.setAttribute('data-theme', state.theme === 'dark' ? 'dark' : 'light');
+    // change some CSS custom props directly for convenience
+    if (state.theme === 'dark') {
+      document.body.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg-dark');
+      document.body.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-dark');
+      themeToggle.textContent = '🌙';
+    } else {
+      document.body.style.background = getComputedStyle(document.documentElement).getPropertyValue('--surface-light');
+      document.body.style.color = getComputedStyle(document.documentElement).getPropertyValue('--text-light');
+      themeToggle.textContent = '🌞';
+    }
+  }
+
+  // ----------------------------
+  // Apply language & direction
+  // ----------------------------
+  function applyLang() {
+    // set html lang and dir
+    document.documentElement.lang = state.lang === 'fa' ? 'fa' : 'en';
+    document.documentElement.dir = state.lang === 'fa' ? 'rtl' : 'ltr';
+
+    // font family switch for Persian (Kalameh)
+    if (state.lang === 'fa') {
+      // if Kalameh is available it will be used; otherwise fallback fonts
+      document.body.style.fontFamily = "'Kalameh', Tahoma, 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', Roboto, Arial";
+    } else {
+      document.body.style.fontFamily = "'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, Arial";
+    }
+
+    // update static texts (headline/subheadline/about)
+    headlineEl.textContent = t('Engineered for your kitchen','طراحی‌شده برای آشپزخانه شما');
+    subheadlineEl.textContent = t('MixPlus brings premium appliances with modern design and lasting quality.','میکس پلاس تجهیزات باکیفیت و طراحی مدرن را به آشپزخانه شما می‌آورد.');
+    aboutTitle.textContent = t('MixPlus — Better by Design','میکس پلاس — برتری در طراحی');
+    aboutText.textContent = t('We combine modern aesthetics with durable materials and thoughtful engineering to create kitchen appliances that last.','ما زیبایی مدرن را با متریال با دوام و مهندسی دقیق ترکیب می‌کنیم تا محصولاتی بسازیم که پایدار بمانند.');
+  }
+
+  // ----------------------------
+  // Render category rollout menu
+  // ----------------------------
+  function renderCategoryRollout() {
+    productRollout.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.textContent = state.lang === 'fa' ? (cat.labelFa || cat.labelEn) : cat.labelEn;
+      btn.addEventListener('click', () => {
+        // go to products filtered by category
+        window.location.hash = `/products?cat=${encodeURIComponent(cat.key)}`;
+      });
+      productRollout.appendChild(btn);
+
+      if (cat.subs && cat.subs.length) {
+        const subWrap = document.createElement('div');
+        subWrap.style.marginTop = '8px';
+        subWrap.style.paddingTop = '6px';
+        subWrap.style.borderTop = '1px dashed rgba(0,0,0,0.04)';
+        cat.subs.forEach(sub => {
+          const subBtn = document.createElement('button');
+          subBtn.style.fontSize = '0.95rem';
+          subBtn.textContent = state.lang === 'fa' ? sub : sub; // subs are in EN: you can localize
+          subBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.location.hash = `/products?cat=${encodeURIComponent(cat.key)}&sub=${encodeURIComponent(sub)}`;
+          });
+          subWrap.appendChild(subBtn);
+        });
+        productRollout.appendChild(subWrap);
+      }
+    });
+  }
+
+  // ----------------------------
+  // Render product grid
+  // ----------------------------
+  function renderProducts(filter = {}) {
+    productGrid.innerHTML = '';
+    let list = PRODUCTS.slice();
+
+    if (filter.cat) {
+      list = list.filter(p => p.category === filter.cat);
+    }
+    if (filter.sub) {
+      list = list.filter(p => p.subcategory === filter.sub || p.subcategory === filter.sub || p.subcategory === undefined ? p : p);
+    }
+
+    list.forEach(p => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.setAttribute('role','article');
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+      const img = document.createElement('img');
+      img.src = p.images && p.images.length ? p.images[0] : '/media/placeholder.jpg';
+      img.alt = state.lang === 'fa' ? (p.titleFa || p.title) : (p.title || p.titleFa);
+      thumb.appendChild(img);
+
+      // hover swap
+      card.addEventListener('mouseenter', () => {
+        if (p.images && p.images[1]) img.src = p.images[1];
+      });
+      card.addEventListener('mouseleave', () => {
+        img.src = p.images && p.images.length ? p.images[0] : '/media/placeholder.jpg';
+      });
+
+      // click -> product detail route
+      card.addEventListener('click', () => {
+        window.location.hash = `/product/${p.id}`;
+      });
+
+      const title = document.createElement('div');
+      title.style.marginTop = '10px';
+      title.style.fontWeight = '700';
+      title.textContent = state.lang === 'fa' ? (p.titleFa || p.title) : (p.title || p.titleFa);
+
+      const short = document.createElement('div');
+      short.className = 'specs';
+      short.textContent = state.lang === 'fa' ? (p.shortFa || p.short) : (p.short || p.shortFa);
+
+      card.appendChild(thumb);
+      card.appendChild(title);
+      card.appendChild(short);
+      productGrid.appendChild(card);
+    });
+  }
+
+  // ----------------------------
+  // Product detail renderer
+  // ----------------------------
+  function renderProductDetail(productId) {
+    const p = PRODUCTS.find(x => x.id === productId);
+    if (!p) {
+      productDetail.innerHTML = `<div style="padding:18px;"><strong>${t('Product not found','محصول یافت نشد')}</strong></div>`;
+      productDetail.classList.remove('hidden');
+      productDetail.scrollIntoView({behavior:'smooth'});
+      return;
+    }
+    // build markup
+    let html = '';
+    html += `<div style="display:flex;flex-direction:column;gap:12px;">`;
+    html += `<button onclick="navigateTo('#/products')" class="btn" style="align-self:stretch;">◀ ${t('Back to products','بازگشت به محصولات')}</button>`;
+    html += `<div class="detail-grid">`;
+    html += `<div>`;
+    html += `<div style="border-radius:12px;overflow:hidden;"><img src="${(p.images && p.images[0]) ? p.images[0] : '/media/placeholder.jpg'}" alt="${p.title}" style="width:100%;height:420px;object-fit:cover;"></div>`;
+    if (p.images && p.images.length>1) {
+      html += `<div class="thumbnails">`;
+      p.images.forEach((img,idx) => {
+        html += `<button class="thumb-btn" onclick="document.querySelector('#productDetail img').src='${img}';"><img src="${img}" alt="thumb${idx}"></button>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`; // left
+    html += `<div>`;
+    html += `<h2 style="margin-top:0;">${state.lang === 'fa' ? (p.titleFa || p.title) : (p.title || p.titleFa)}</h2>`;
+    html += `<p class="muted-small">${state.lang === 'fa' ? (p.shortFa || p.short) : (p.short || p.shortFa)}</p>`;
+    html += `<div style="margin-top:12px;"><strong>${t('Specifications','مشخصات')}</strong>`;
+    html += `<div style="margin-top:8px;">`;
+    for (const [k,v] of Object.entries(p.specs || {})) {
+      html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04);"><div style="font-weight:600;">${k}</div><div>${v}</div></div>`;
+    }
+    html += `</div></div>`;
+    html += `<div style="margin-top:16px;display:flex;gap:8px;"><a class="btn" href="${catalogSrc}" download>${t('Download brochure','دانلود بروشور')}</a><a class="btn" href="#/contact">${t('Contact Support','تماس با پشتیبانی')}</a></div>`;
+    html += `</div>`; // right
+    html += `</div>`; // detail-grid
+    html += `</div>`;
+
+    productDetail.innerHTML = html;
+    productDetail.classList.remove('hidden');
+    productDetail.scrollIntoView({behavior:'smooth'});
+  }
+
+  // ----------------------------
+  // Simple navigation helper
+  // ----------------------------
+  function navigateTo(hash) { window.location.hash = hash; }
+
+  // ----------------------------
+  // Hash routing handler
+  // Supported hash routes:
+  //  #/                 -> home/landing
+  //  #/products         -> products grid
+  //  #/products?cat=... -> filtered products
+  //  #/product/<id>     -> product detail
+  // ----------------------------
+  function onHashChange() {
+    const raw = window.location.hash || '#/';
+    state.route = raw;
+    // hide detail by default
+    productDetail.classList.add('hidden');
+
+    // parse route
+    if (raw.startsWith('#/product/')) {
+      const id = raw.split('#/product/')[1];
+      renderProductDetail(id);
+      return;
+    }
+
+    // products listing and filtering
+    if (raw.startsWith('#/products')) {
+      // parse query
+      let qs = raw.split('?')[1] || '';
+      const params = new URLSearchParams(qs);
+      const cat = params.get('cat');
+      const sub = params.get('sub');
+      renderProducts({ cat, sub });
+      // scroll to products
+      document.getElementById('products').scrollIntoView({behavior:'smooth'});
+      return;
+    }
+
+    // about, dealers, services, contact
+    if (raw.startsWith('#/about')) { document.getElementById('about').scrollIntoView({behavior:'smooth'}); return; }
+    if (raw.startsWith('#/dealers')) { document.getElementById('dealers').scrollIntoView({behavior:'smooth'}); return; }
+    if (raw.startsWith('#/services')) { alert(t('Our after-sales services will be listed here.','خدمات پس از فروش اینجا قرار می‌گیرد.')); return; }
+
+    // default -> landing
+    if (raw === '#/' || raw === '') { window.scrollTo({top:0,behavior:'smooth'}); renderProducts(); return; }
+  }
+
+  // initialize
+  init();
+
+  // expose helpers for inline onclick
+  window.navigateTo = navigateTo;
+
+  // ----------------------------
+  // Small accessibility niceties:
+  // - If images are missing, use placeholder
+  // ----------------------------
+  window.addEventListener('error', function(e) {
+    if (e.target && e.target.tagName === 'IMG') {
+      e.target.src = '/media/placeholder.jpg';
+    }
+  }, true);
+
+  // ----------------------------
+  // Final notes for YOU (read & edit)
+  // ----------------------------
+  /*
+    1) To change texts:
+       - Change the PRODUCTS array for product-related texts (titleFa/title, shortFa/short).
+       - Change the static texts near top (in applyLang() updates) for headline/subheadline/about.
+
+    2) To add a product:
+       - Add an object to PRODUCTS.
+       - Upload its images into /media/ (names as referenced).
+       - Example object provided above.
+
+    3) To add sub-rollout in header:
+       - Edit CATEGORIES array and add the desired subs.
+       - Each sub when clicked sets a hash like: #/products?cat=Sink&sub=Accessories
+
+    4) To replace logo/video/catalog:
+       - Replace files in /media/ or change logoSrc/videoSrcMp4/catalogSrc at the top of this script.
+
+    5) To add Persian font:
+       - Upload Kalameh-FaNumber.woff2 to /media/fonts/ and ensure @font-face above is present.
+         The page will then use Kalameh for Persian language.
+
+    6) To publish on GitHub Pages:
+       - Create a repo, add this index.html to root, add a folder media/ with assets, commit & push.
+       - In repository Settings -> Pages -> Source choose main branch / root -> Save.
+       - After a minute, GitHub shows "Your site is published at https://<username>.github.io/<repo>/"
+
+    7) If you want me to produce a ready-to-upload ZIP with placeholder images and fonts, say so.
+  */
+</script>
+</body>
+</html>
