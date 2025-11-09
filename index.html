@@ -1,0 +1,496 @@
+/*
+MixPlus — Enhanced Long Landing
+Single-file React component (Tailwind-friendly) intended as a comprehensive starter for
+an attractive long-form landing page for MixPlus (MixPlus — تولیدکننده لوازم خانگی).
+
+Features included:
+- Long, visually rich landing with multiple sections (hero with video + overlay shapes, brand story, product teaser, features, timeline, gallery, testimonials, download CTA, dealers, contact)
+- Language switch (fa / en) with full RTL/LTR direction switching
+- Light / Dark theme toggle (defaults to light). Accent color: #0fa99c
+- Product teasers with category rollout (Sink & Gas have sub-rollout items). Clicking product card -> product detail route
+- Product hover image swap and detail view (no purchase)
+- Prominent Catalog download button
+- Social icons (Instagram, YouTube, Aparat, Telegram bot, LinkedIn)
+- Footer includes factory address
+- Animations (entrance, parallax-like subtle movement, hover micro-interactions)
+- Fonts: Montserrat (EN via Google) + instructions to add Kalameh faNumber for Persian (local files required)
+- Full instructions inside the file about how to change text, images, assets, and deploy to GitHub Pages / Netlify
+
+HOW TO USE:
+- Paste into a React project (Create React App or Vite). Tailwind is recommended for exact visuals.
+- Replace placeholder media (video, images, logo, pdf) in /public/media or with CDN links.
+- Add Kalameh faNumber font files to /public/fonts and declare @font-face in your global CSS (instructions below).
+
+Notes:
+- This file uses inline styles and Tailwind classes. If you don't use Tailwind, adapt the classes to your CSS.
+- Routing here is simple hash-based. For production use React Router or Next.js for SEO.
+
+
+*/
+
+import React, { useEffect, useMemo, useState } from 'react';
+
+const ACCENT = '#0fa99c';
+const videoUrl = '/media/hero-abstract.mp4'; // replace with your hero video
+const logoUrl = '/media/mixplus-logo.svg'; // replace with logo
+const catalogUrl = '/media/mixplus-catalog.pdf'; // replace with catalog pdf
+
+const PRODUCTS = [
+  {
+    id: 'sink-01', category: 'Sink', categoryFa: 'سینک', title: 'Deluxe Stainless Sink', titleFa: 'سینک استیل لوکس', images: ['/media/sink-01-1.jpg','/media/sink-01-2.jpg'], short: 'Premium stainless sink with soundproofing.', shortFa: 'سینک استیل با عایق صوتی و طراحی مدرن.', specs: { Material: 'Stainless Steel 304', Dimensions: '80x50 cm' }
+  },
+  {
+    id: 'gas-01', category: 'Gas', categoryFa: 'گاز', title: 'ProCook Gas Hob', titleFa: 'گاز پروکوک', images: ['/media/gas-01-1.jpg','/media/gas-01-2.jpg'], short: '4-burner gas hob with auto-ignition.', shortFa: 'صفحه گاز 4 شعله با جرقه‌زن اتوماتیک.', specs: { Burners: '4', Surface: 'Tempered Glass' }
+  },
+  { id: 'hood-01', category: 'Hood', categoryFa: 'هود', title: 'SilentFlow Hood', titleFa: 'هود سایلنت فلو', images: ['/media/hood-01-1.jpg'], short: 'Low-noise extraction hood.', shortFa: 'هود با مکش قوی و نویز پایین.', specs: { Power: '220W' } },
+  { id: 'oven-01', category: 'Oven', categoryFa: 'فر', title: 'SmartBake Oven', titleFa: 'فر اسمارت‌بیک', images: ['/media/oven-01-1.jpg'], short: 'Convection oven with digital control.', shortFa: 'فر با کنترل دیجیتال و گردش هوای یکنواخت.', specs: { Capacity: '70L' } }
+];
+
+function useDir(lang) { return useMemo(() => (lang === 'fa' ? 'rtl' : 'ltr'), [lang]); }
+
+export default function MixPlusLongLanding() {
+  const [lang, setLang] = useState('fa'); // default Persian
+  const dir = useDir(lang);
+  const [theme, setTheme] = useState('light'); // default light
+  const [route, setRoute] = useState(window.location.hash.replace('#','') || '/');
+  const [hoverImage, setHoverImage] = useState({});
+
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash.replace('#','') || '/');
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('dir', dir);
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.style.setProperty('--accent', ACCENT);
+    if (theme === 'dark') {
+      document.documentElement.style.setProperty('--bg', '#000000');
+      document.documentElement.style.setProperty('--surface', '#0f1111');
+      document.documentElement.style.setProperty('--text', '#e6e6e6');
+    } else {
+      document.documentElement.style.setProperty('--bg', '#ffffff');
+      document.documentElement.style.setProperty('--surface', '#ffffff');
+      document.documentElement.style.setProperty('--text', '#0b0b0b');
+    }
+  }, [dir, theme]);
+
+  const t = (en, fa) => (lang === 'fa' ? fa : en);
+
+  const categories = [
+    { key: 'Sink', label: t('Sink','سینک'), subs: [t('Single Bowl','تک لگن'), t('Double Bowl','دو لگن')] },
+    { key: 'Gas', label: t('Gas','گاز'), subs: [t('Built-in','توکار'), t('Freestanding','ایستاده')] },
+    { key: 'Hood', label: t('Hood','هود'), subs: [] },
+    { key: 'Oven', label: t('Oven','فر'), subs: [] }
+  ];
+
+  const openCategory = (cat) => { window.location.hash = `/products?cat=${encodeURIComponent(cat)}`; };
+
+  const Logo = () => (
+    <div className="flex items-center gap-3">
+      <img src={logoUrl} alt="MixPlus" className="h-12 w-auto" />
+      <div className="hidden sm:block">
+        <div className="font-extrabold text-lg">MixPlus</div>
+        <div className="text-xs opacity-80">{t('Home Appliances','تجهیزات خانگی')}</div>
+      </div>
+    </div>
+  );
+
+  const Social = () => (
+    <div className="flex items-center gap-3">
+      <a href="https://instagram.com/yourbrand" target="_blank" rel="noreferrer" aria-label="Instagram" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">IG</a>
+      <a href="https://youtube.com/yourbrand" target="_blank" rel="noreferrer" aria-label="YouTube" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">YT</a>
+      <a href="https://aparat.com/yourbrand" target="_blank" rel="noreferrer" aria-label="Aparat" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">AP</a>
+      <a href="https://t.me/yourbot" target="_blank" rel="noreferrer" aria-label="Telegram" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">TG</a>
+      <a href="https://linkedin.com/company/yourbrand" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">IN</a>
+    </div>
+  );
+
+  // Hero: big video, geometric shapes, blended gradient, strong headline, CTA
+  const Hero = () => (
+    <header className="relative overflow-hidden" style={{ background: 'var(--bg)' }}>
+      <div className="absolute inset-0 -z-10">
+        <video src={videoUrl} autoPlay muted loop playsInline className="w-full h-full object-cover brightness-90" />
+        <div className="absolute inset-0" style={{ background: theme === 'dark' ? 'linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.6))' : 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02))' }} />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-20">
+        <nav className="flex items-center justify-between">
+          <Logo />
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-3 bg-[rgba(255,255,255,0.02)] rounded-full px-3 py-1">
+              {categories.map(c => (
+                <div key={c.key} className="relative group">
+                  <button onClick={() => openCategory(c.key)} className="px-3 py-2 rounded-full text-sm font-medium hover:text-[var(--accent)] transition">{c.label}</button>
+                  {c.subs.length > 0 && (
+                    <div className={`absolute ${dir==='rtl'?'right-0':'left-0'} top-full mt-2 w-44 bg-[var(--surface)] rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transform group-hover:translate-y-0 transition-all`}>
+                      <ul className="p-2">
+                        {c.subs.map(s => <li key={s}><button className="block w-full text-sm py-1">{s}</button></li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <a href={catalogUrl} download className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium shadow" style={{ background: ACCENT, color: '#fff' }}>{t('Download Catalog','دانلود کاتالوگ')}</a>
+
+            <div className="flex items-center gap-2">
+              <button onClick={() => setTheme(t => t==='light'?'dark':'light')} className="p-2 rounded-full" aria-label="Toggle theme">{theme==='light'?'🌞':'🌙'}</button>
+              <select aria-label="Language" value={lang} onChange={e=>setLang(e.target.value)} className="px-2 py-1 rounded">
+                <option value="fa">FA</option>
+                <option value="en">EN</option>
+              </select>
+            </div>
+          </div>
+        </nav>
+
+        <div className={`mt-12 max-w-5xl ${dir==='rtl'?'text-right':'text-left'}`}>
+          <div className="inline-flex items-center gap-3 mb-4">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: 'rgba(15,169,156,0.12)', color: ACCENT }}>{t('New Collection','مجموعه جدید')}</span>
+            <div className="text-sm opacity-80">{t('Crafted for modern kitchens','طراحی شده برای آشپزخانه‌های مدرن')}</div>
+          </div>
+
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight" style={{ color: 'var(--text)' }}>{t('Where innovation meets kitchen','جایی که نوآوری با آشپزخانه ملاقات می‌کند')}</h1>
+          <p className="mt-4 text-lg md:text-xl opacity-90 max-w-2xl">{t('MixPlus blends timeless materials, precise engineering and elegant design to craft appliances that elevate daily life.','میکس پلاس مواد ماندگار، مهندسی دقیق و طراحی لطیف را ترکیب می‌کند تا محصولاتی بسازد که کیفیت زندگی روزانه را ارتقا دهند.')}</p>
+
+          <div className="mt-8 flex flex-wrap gap-4">
+            <a href="#/about" className="px-6 py-3 rounded-3xl font-semibold shadow" style={{ background: ACCENT, color: '#fff' }}>{t('Discover Brand','آشنایی با برند')}</a>
+            <a href="#/products" className="px-6 py-3 rounded-3xl border font-semibold" style={{ borderColor: 'rgba(15,169,156,0.12)', color: 'var(--text)' }}>{t('Explore Products','مشاهده محصولات')}</a>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Decorative curved panel */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 -translate-y-6 pointer-events-none" style={{ background: 'linear-gradient(180deg, transparent, var(--bg))' }} />
+    </header>
+  );
+
+  const About = () => (
+    <section className="max-w-7xl mx-auto px-6 py-20">
+      <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6">
+          <h2 className="text-3xl font-bold">{t('A legacy of craft & care','میراثی از صنعت و دقت')}</h2>
+          <p className="text-lg opacity-90">{t('Since our founding, MixPlus has focused on durable materials and careful engineering. From the factory to your kitchen, our products reflect rigorous testing and refined design language.','از آغاز، میکس پلاس روی متریال با دوام و مهندسی دقیق تمرکز کرده است. از کارخانه تا آشپزخانه شما، محصولات ما نتیجهٔ تست‌های دقیق و زبان طراحی پالوده‌اند.')}</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            <div className="p-4 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.08)' }}>
+              <div className="font-semibold">{t('Sustainable materials','متریال پایدار')}</div>
+              <div className="text-sm opacity-80 mt-1">{t('Recyclable steel and low-impact packaging.','استیل قابل بازیافت و بسته‌بندی کم‌اثر.')}</div>
+            </div>
+            <div className="p-4 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.08)' }}>
+              <div className="font-semibold">{t('R&D & Certification','تحقیق و توسعه')}</div>
+              <div className="text-sm opacity-80 mt-1">{t('Quality tests and certifications for safety and performance.','تست‌های کیفیت و گواهی‌ها برای ایمنی و عملکرد.')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="rounded-xl overflow-hidden shadow-lg">
+            <img src="/media/brand-factory.jpg" alt="factory" className="w-full h-96 object-cover" />
+          </div>
+          <div className="absolute top-6 left-6 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="text-xs opacity-80">{t('Factory Tour','بازدید کارخانه')}</div>
+            <div className="font-semibold">{t('See how we build','نگاهی به فرآیند تولید')}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  const ProductTeaser = () => (
+    <section className="max-w-7xl mx-auto px-6 py-16 bg-[var(--surface)] rounded-2xl mx-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-2xl font-bold">{t('Featured products','محصولات منتخب')}</h3>
+        <a href="#/products" className="text-sm opacity-80">{t('See all products','مشاهده همه')}</a>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {PRODUCTS.map(p => (
+          <div key={p.id} className="bg-gradient-to-tr from-[rgba(15,169,156,0.04)] to-transparent rounded-xl p-4 shadow group cursor-pointer" onClick={()=>window.location.hash=`/product/${p.id}`}>
+            <div className="relative h-44 rounded overflow-hidden">
+              <img src={hoverImage[p.id] || p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" onMouseEnter={() => setHoverImage(prev=>({...prev,[p.id]:p.images[1]||p.images[0]}))} onMouseLeave={() => setHoverImage(prev=>({...prev,[p.id]:undefined}))} />
+            </div>
+            <div className="mt-3">
+              <div className="font-semibold">{lang==='fa'?p.titleFa:p.title}</div>
+              <div className="text-sm opacity-80">{lang==='fa'?p.shortFa:p.short}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  const Features = () => (
+    <section className="max-w-7xl mx-auto px-6 py-20">
+      <h3 className="text-2xl font-bold mb-6">{t('Why MixPlus','چرا میکس پلاس')}</h3>
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="p-6 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.06)' }}>
+          <div className="text-3xl font-bold mb-2">{t('Precision','دقت')}</div>
+          <div className="text-sm opacity-80">{t('Precision-engineered components for lasting performance.','قطعات مهندسی‌شده برای عملکرد پایدار.')}</div>
+        </div>
+        <div className="p-6 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.06)' }}>
+          <div className="text-3xl font-bold mb-2">{t('Design','طراحی')}</div>
+          <div className="text-sm opacity-80">{t('Minimalist aesthetic that fits modern kitchens.','زیبایی‌شناسی مینیمال مناسب آشپزخانه‌های مدرن.')}</div>
+        </div>
+        <div className="p-6 rounded-xl" style={{ border: '1px solid rgba(15,169,156,0.06)' }}>
+          <div className="text-3xl font-bold mb-2">{t('Support','پشتیبانی')}</div>
+          <div className="text-sm opacity-80">{t('Nationwide service network and fast spare parts.','شبکه خدمات سراسری و قطعات یدکی سریع.')}</div>
+        </div>
+      </div>
+    </section>
+  );
+
+  const Timeline = () => (
+    <section className="max-w-7xl mx-auto px-6 py-20 bg-[rgba(15,169,156,0.02)] rounded-2xl mx-6">
+      <h3 className="text-2xl font-bold mb-6">{t('Our story','داستان ما')}</h3>
+      <div className="space-y-8">
+        <div className="flex items-start gap-6">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)] text-white font-semibold">1998</div>
+          <div>
+            <div className="font-semibold">{t('Founded','تأسیس')}</div>
+            <div className="text-sm opacity-80">{t('Started as a small workshop and grew into a national brand.','شروع به‌عنوان یک کارگاه کوچک و رشد تا تبدیل‌شدن به یک برند ملی.')}</div>
+          </div>
+        </div>
+        <div className="flex items-start gap-6">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)] text-white font-semibold">2010</div>
+          <div>
+            <div className="font-semibold">{t('Export & Expansion','صادرات و توسعه')}</div>
+            <div className="text-sm opacity-80">{t('Expanded product lines and began exporting.','گسترش خطوط محصول و آغاز صادرات.')}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  const Gallery = () => (
+    <section className="max-w-7xl mx-auto px-6 py-20">
+      <h3 className="text-2xl font-bold mb-6">{t('Gallery','گالری')}</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <img src="/media/gallery-1.jpg" className="w-full h-44 object-cover rounded" />
+        <img src="/media/gallery-2.jpg" className="w-full h-44 object-cover rounded" />
+        <img src="/media/gallery-3.jpg" className="w-full h-44 object-cover rounded" />
+        <img src="/media/gallery-4.jpg" className="w-full h-44 object-cover rounded" />
+      </div>
+    </section>
+  );
+
+  const CTA = () => (
+    <section className="max-w-7xl mx-auto px-6 py-20 bg-[var(--accent)] text-white rounded-2xl mx-6">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+          <h3 className="text-2xl font-bold">{t('Get the digital catalog','کاتالوگ دیجیتال را دریافت کنید')}</h3>
+          <p className="opacity-90 mt-2">{t('Download the full MixPlus catalog with specifications and installation guides.','کاتالوگ کامل میکس پلاس همراه با مشخصات و راهنمای نصب را دانلود کنید.')}</p>
+        </div>
+        <div className="flex gap-3">
+          <a href={catalogUrl} download className="px-6 py-3 rounded-full bg-white text-[var(--accent)] font-semibold">{t('Download','دانلود')}</a>
+          <a href="#/dealers" className="px-6 py-3 rounded-full border border-white/30">{t('Find a dealer','یافتن نمایندگی')}</a>
+        </div>
+      </div>
+    </section>
+  );
+
+  const DealersContact = () => (
+    <section className="max-w-7xl mx-auto px-6 py-20">
+      <div className="grid md:grid-cols-2 gap-8">
+        <div>
+          <h4 className="text-xl font-semibold">{t('Authorized Dealers','نمایندگی های مجاز')}</h4>
+          <p className="mt-3 text-sm opacity-80">{t('We have a national network of authorized dealers. Find your nearest one.','ما شبکه ملی نمایندگی‌های مجاز داریم. نزدیک‌ترین نمایندگی را بیابید.')}</p>
+          <ul className="mt-4 text-sm space-y-2">
+            <li>• {t('Dealer City 1','نمایندگی — شهر ۱')}</li>
+            <li>• {t('Dealer City 2','نمایندگی — شهر ۲')}</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-xl font-semibold">{t('Contact Us','تماس با ما')}</h4>
+          <p className="mt-3 text-sm opacity-80">{t('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
+          <p className="mt-1 text-sm opacity-80">{t('Email: support@mixplus.example','ایمیل: support@mixplus.example')}</p>
+        </div>
+      </div>
+    </section>
+  );
+
+  const Footer = () => (
+    <footer className="mt-12" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
+      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <div className="flex items-center gap-3"><img src={logoUrl} alt="MixPlus" className="h-10" /><div className="font-semibold">MixPlus</div></div>
+          <p className="mt-3 text-sm opacity-80">{t('Kitchen appliances designed to last.','تجهیزات آشپزخانه طراحی‌شده برای ماندگاری.')}</p>
+          <div className="mt-4"><Social /></div>
+        </div>
+        <div>
+          <h4 className="font-semibold">{t('Quick Links','لینک‌های سریع')}</h4>
+          <ul className="mt-3 space-y-2 text-sm opacity-90">
+            <li><a href="#/products">{t('Products','محصولات')}</a></li>
+            <li><a href="#/services">{t('After Sales','خدمات پس از فروش')}</a></li>
+            <li><a href="#/dealers">{t('Dealers','نمایندگی‌ها')}</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold">{t('Factory Address','آدرس کارخانه')}</h4>
+          <p className="mt-3 text-sm opacity-90">{t('123 Industrial Zone, City Name, Country','منطقه صنعتی ۱۲۳، شهر، کشور')}</p>
+          <p className="mt-2 text-sm">{t('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
+        </div>
+      </div>
+      <div className="text-center py-4 text-xs opacity-80">© {new Date().getFullYear()} MixPlus</div>
+    </footer>
+  );
+
+  // Product pages
+  const ProductsPage = ({ queryCat }) => {
+    const filtered = queryCat ? PRODUCTS.filter(p=>p.category===queryCat) : PRODUCTS;
+    return (
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <h2 className="text-2xl font-bold">{t('Products','محصولات')}</h2>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map(p => (
+            <div key={p.id} className="bg-[var(--surface)] rounded-xl p-4 shadow group hover:shadow-xl transition cursor-pointer" onClick={()=>window.location.hash=`/product/${p.id}`}>
+              <div className="relative h-44 rounded overflow-hidden">
+                <img src={hoverImage[p.id]||p.images[0]} alt={p.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" onMouseEnter={()=>setHoverImage(prev=>({...prev,[p.id]:p.images[1]||p.images[0]}))} onMouseLeave={()=>setHoverImage(prev=>({...prev,[p.id]:undefined}))} />
+              </div>
+              <div className="mt-3">
+                <div className="font-semibold">{lang==='fa'?p.titleFa:p.title}</div>
+                <div className="text-sm opacity-80">{lang==='fa'?p.shortFa:p.short}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
+
+  const ProductDetail = ({ id }) => {
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(!p) return <div className="p-8">{t('Product not found','محصول یافت نشد')}</div>;
+    return (
+      <section className="max-w-5xl mx-auto px-6 py-12">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <div className="rounded-xl overflow-hidden h-96"><img src={hoverImage[p.id]||p.images[0]} alt={p.title} className="w-full h-full object-cover" /></div>
+            <div className="flex gap-3 mt-3">
+              {p.images.map((img,idx)=> <button key={idx} onClick={()=>setHoverImage(prev=>({...prev,[p.id]:img}))} className="w-20 h-14 rounded overflow-hidden border"><img src={img} className="w-full h-full object-cover" /></button>)}
+            </div>
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold">{lang==='fa'?p.titleFa:p.title}</h3>
+            <p className="mt-3 opacity-90">{lang==='fa'?p.shortFa:p.short}</p>
+            <div className="mt-6">
+              <h4 className="font-semibold">{t('Specifications','مشخصات')}</h4>
+              <div className="mt-2 space-y-2">
+                {Object.entries(p.specs).map(([k,v])=> <div key={k} className="flex justify-between border-b py-2"><div className="font-medium">{k}</div><div className="opacity-80">{v}</div></div>)}
+              </div>
+            </div>
+            <div className="mt-6">
+              <a href={catalogUrl} download className="px-4 py-2 rounded bg-[var(--accent)] text-white">{t('Download brochure','دانلود بروشور')}</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  const renderRoute = () => {
+    if (route === '/' || route === '') return (
+      <>
+        <About />
+        <ProductTeaser />
+        <Features />
+        <Timeline />
+        <Gallery />
+        <CTA />
+        <DealersContact />
+      </>
+    );
+    if (route.startsWith('/products')) {
+      const params = new URLSearchParams(route.split('?')[1]||'');
+      const cat = params.get('cat');
+      return <ProductsPage queryCat={cat} />;
+    }
+    if (route.startsWith('/product/')) {
+      const id = route.split('/')[2];
+      return <ProductDetail id={id} />;
+    }
+    if (route === '/about') return <section className="max-w-5xl mx-auto px-6 py-12"><h2 className="text-2xl font-bold">{t('About MixPlus','درباره میکس پلاس')}</h2><p className="mt-3">{t('Detailed about content here.','متن معرفی مفصل در اینجا.')}</p></section>;
+    if (route === '/services') return <section className="max-w-5xl mx-auto px-6 py-12"><h2>{t('After Sales Services','خدمات پس از فروش')}</h2></section>;
+    if (route === '/dealers') return <section className="max-w-5xl mx-auto px-6 py-12"><h2>{t('Authorized Dealers','نمایندگی های مجاز')}</h2></section>;
+    return <section className="p-8">{t('Page not found','صفحه مورد نظر یافت نشد')}</section>;
+  };
+
+  return (
+    <div className="min-h-screen font-sans" style={{ background: 'var(--bg)', color: 'var(--text)', transition: 'background 0.25s ease' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+        :root{--accent:${ACCENT}}
+        html[dir='rtl']{direction:rtl}
+        .font-sans{font-family: ${lang==='fa'?"'Kalameh', 'Tahoma', 'Vazirmatn', sans-serif":"'Montserrat', 'Helvetica Neue', Arial, sans-serif"};}
+        a{transition: all 180ms ease}
+      `}</style>
+
+      <Hero />
+
+      <main>
+        {renderRoute()}
+      </main>
+
+      <Footer />
+
+      {/* Developer notes (hidden visually) */}
+      <div style={{display:'none'}}>README: To change text, edit t('EN','FA') helper calls. To add products edit PRODUCTS at top. Replace media files at /public/media. Add Kalameh font files to /public/fonts and declare @font-face in global CSS. Deploy: build and push to GitHub Pages or Netlify. For exact steps see project README you create when ready.</div>
+    </div>
+  );
+}
+
+/*
+Detailed developer checklist (copy into your project README):
+
+1) Fonts
+- Montserrat is loaded via Google Fonts import in the component. For Persian use Kalameh faNumber:
+  - Put Kalameh-FaNumber.woff2 into /public/fonts/
+  - In your global CSS (e.g., index.css) add:
+    @font-face {
+      font-family: 'Kalameh';
+      src: url('/fonts/Kalameh-FaNumber.woff2') format('woff2');
+      font-weight: 400 800;
+      font-style: normal;
+      font-display: swap;
+    }
+  - Ensure the Persian copy uses font-family 'Kalameh'.
+
+2) Assets
+- Place hero video at /public/media/hero-abstract.mp4
+- Replace /media/* placeholders with your actual images.
+
+3) Adding/Editing Products
+- Edit the PRODUCTS array at top. Each product: {id, category, categoryFa, title, titleFa, images:[...], short, shortFa, specs:{...}}
+- For hover image add second image in images array.
+
+4) Localization
+- Strings use t(EN, FA). Search-replace to edit. For large projects use i18next.
+
+5) Theme persistence
+- To persist theme, replace useState('light') with a localStorage-aware initializer and call localStorage.setItem when theme toggles.
+
+6) Deploy to GitHub Pages (quick, using Vite):
+- Create repo, add code, push
+- In package.json add:
+  "homepage": "https://<username>.github.io/<repo>",
+  "scripts": { "predeploy": "npm run build", "deploy": "gh-pages -d dist" }
+- Install gh-pages and run npm run deploy
+
+7) Netlify deploy:
+- Push repo to GitHub. Create site on Netlify and connect repo, set build command (npm run build) and publish directory (dist or build).
+
+8) RTL/LTR correctness
+- The component sets dir attr on html. Check layout and adjust margins/paddings where needed.
+
+9) Accessibility
+- Add alt text to all images and implement aria labels.
+
+10) Next steps
+- Move routing to React Router
+- Use a headless CMS (Netlify CMS, Strapi, Sanity) or a simple JSON file + admin to manage products.
+
+*/
