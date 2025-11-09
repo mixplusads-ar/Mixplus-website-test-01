@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<!-- 
+  صفحه لندینگ MixPlus
+  تبدیل شده از کامپوننت React به یک فایل HTML واحد و خالص.
+  این فایل شامل TailwindCSS از CDN، فونت گوگل Montserrat و تمام منطق جاوا اسکریپت لازم است.
+-->
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MixPlus — تولیدکننده لوازم خانگی</title>
+
+    <!-- 1. بارگذاری Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. بارگذاری فونت Google (Montserrat برای انگلیسی) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- 3. استایل‌های سراسری و تنظیمات اولیه -->
+    <style>
+        /* راهنمای فونت فارسی (Kalameh):
+          برای نمایش صحیح فونت فارسی، فایل‌های فونت کلمه (Kalameh faNumber) را 
+          در پوشه /fonts در ریشه سایت خود قرار دهید و این @font-face را در 
+          فایل CSS سراسری خود فعال کنید:
+
+          @font-face {
+            font-family: 'Kalameh';
+            src: url('/fonts/Kalameh-FaNumber.woff2') format('woff2');
+            font-weight: 400 800;
+            font-style: normal;
+            font-display: swap;
+          }
+        */
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            /* مقادیر پیش‌فرض که توسط جاوا اسکریپت مدیریت می‌شوند */
+            --accent: #0fa99c;
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --text: #0b0b0b;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        /* مدیریت فونت بر اساس زبان */
+        body[data-lang="en"] {
+            font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+        }
+        body[data-lang="fa"] {
+            /* اطمینان حاصل کنید که 'Kalameh' قبل از فونت‌های جایگزین لود شده باشد.
+              اگر 'Kalameh' لود نشود، از فونت‌های بعدی استفاده خواهد شد.
+            */
+            font-family: 'Kalameh', 'Tahoma', 'Vazirmatn', sans-serif;
+        }
+
+        a {
+            transition: all 180ms ease;
+        }
+
+        /* Tailwind به صورت پیش‌فرض group-hover:visible را پشتیبانی می‌کند.
+          این استایل‌ها برای اطمینان بیشتر اضافه شده‌اند، اما خود Tailwind باید کافی باشد.
+        */
+        .group:hover .group-hover-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body data-lang="fa">
+
+    <!-- ریشه برنامه؛ تمام محتوا توسط جاوا اسکریپت در اینجا رندر می‌شود -->
+    <div id="app-root" class="min-h-screen">
+        <!-- محتوای پویا در اینجا بارگذاری می‌شود -->
+    </div>
+
+    <!-- 
+      یادداشت‌های توسعه‌دهنده (مخفی)
+      - برای تغییر متن‌ها، تابع t(EN, FA) را در <script> ویرایش کنید.
+      - برای افزودن محصولات، آرایه PRODUCTS را ویرایش کنید.
+      - فایل‌های رسانه‌ای (ویدیو، عکس) را در /public/media قرار دهید یا لینک‌ها را به‌روز کنید.
+      - فونت Kalameh را طبق دستورالعمل بالا اضافه کنید.
+    -->
+
+    <!-- 4. منطق برنامه (تبدیل شده از React به جاوا اسکریپت خالص) -->
+    <script>
+        // --- 1. ثوابت و داده‌های برنامه ---
+
+        const ACCENT = '#0fa99c';
+        const videoUrl = '/media/hero-abstract.mp4'; // مسیر ویدیو هیرو
+        const logoUrl = '/media/mixplus-logo.svg'; // مسیر لوگو
+        const catalogUrl = '/media/mixplus-catalog.pdf'; // مسیر کاتالوگ
+
+        // داده‌های محصولات (مشابه آرایه React)
+        const PRODUCTS = [
+            {
+                id: 'sink-01', category: 'Sink', categoryFa: 'سینک', title: 'Deluxe Stainless Sink', titleFa: 'سینک استیل لوکس', images: ['/media/sink-01-1.jpg','/media/sink-01-2.jpg'], short: 'Premium stainless sink with soundproofing.', shortFa: 'سینک استیل با عایق صوتی و طراحی مدرن.', specs: { Material: 'Stainless Steel 304', Dimensions: '80x50 cm' }
+            },
+            {
+                id: 'gas-01', category: 'Gas', categoryFa: 'گاز', title: 'ProCook Gas Hob', titleFa: 'گاز پروکوک', images: ['/media/gas-01-1.jpg','/media/gas-01-2.jpg'], short: '4-burner gas hob with auto-ignition.', shortFa: 'صفحه گاز 4 شعله با جرقه‌زن اتوماتیک.', specs: { Burners: '4', Surface: 'Tempered Glass' }
+            },
+            { id: 'hood-01', category: 'Hood', categoryFa: 'هود', title: 'SilentFlow Hood', titleFa: 'هود سایلنت فلو', images: ['/media/hood-01-1.jpg'], short: 'Low-noise extraction hood.', shortFa: 'هود با مکش قوی و نویز پایین.', specs: { Power: '220W' } },
+            { id: 'oven-01', category: 'Oven', categoryFa: 'فر', title: 'SmartBake Oven', titleFa: 'فر اسمارت‌بیک', images: ['/media/oven-01-1.jpg'], short: 'Convection oven with digital control.', shortFa: 'فر با کنترل دیجیتال و گردش هوای یکنواخت.', specs: { Capacity: '70L' } }
+        ];
+
+        // --- 2. مدیریت وضعیت (State) برنامه ---
+
+        const appRoot = document.getElementById('app-root');
+
+        // وضعیت (state) اولیه برنامه
+        let state = {
+            lang: 'fa',
+            theme: 'light',
+            route: window.location.hash.replace('#','') || '/',
+            hoverImage: {} // برای ذخیره وضعیت هاور موس روی تصاویر محصول
+        };
+
+        /**
+         * تابعی شبیه به setState در React برای به‌روزرسانی وضعیت و رندر مجدد برنامه
+         * @param {object} newState - بخشی از وضعیت که باید به‌روز شود
+         */
+        function setState(newState) {
+            state = { ...state, ...newState };
+            renderApp(); // رندر مجدد کل برنامه با وضعیت جدید
+        }
+
+        // --- 3. توابع کمکی و داده‌های پویا ---
+
+        /**
+         * تابع ترجمه (i18n)
+         * @param {string} en - متن انگلیسی
+         * @param {string} fa - متن فارسی
+         * @returns {string} متن بر اساس زبان انتخاب شده
+         */
+        const getText = (en, fa) => (state.lang === 'fa' ? fa : en);
+
+        /**
+         * @param {string} lang - زبان فعلی ('fa' یا 'en')
+         * @returns {string} جهت ('rtl' یا 'ltr')
+         */
+        const getDir = (lang) => (lang === 'fa' ? 'rtl' : 'ltr');
+
+        /**
+         * دسته‌بندی‌ها (داده‌های پویا بر اساس زبان)
+         */
+        const getCategories = () => [
+            { key: 'Sink', label: getText('Sink','سینک'), subs: [getText('Single Bowl','تک لگن'), getText('Double Bowl','دو لگن')] },
+            { key: 'Gas', label: getText('Gas','گاز'), subs: [getText('Built-in','توکار'), getText('Freestanding','ایستاده')] },
+            { key: 'Hood', label: getText('Hood','هود'), subs: [] },
+            { key: 'Oven', label: getText('Oven','فر'), subs: [] }
+        ];
+
+        // --- 4. توابع رندر (معادل کامپوننت‌های React) ---
+        // این توابع رشته‌های HTML را برمی‌گردانند
+
+        const Logo = () => `
+            <div class="flex items-center gap-3">
+                <img src="${logoUrl}" alt="MixPlus" class="h-12 w-auto" />
+                <div class="hidden sm:block">
+                    <div class="font-extrabold text-lg">MixPlus</div>
+                    <div class="text-xs opacity-80">${getText('Home Appliances','تجهیزات خانگی')}</div>
+                </div>
+            </div>
+        `;
+
+        const Social = () => `
+            <div class="flex items-center gap-3">
+                <a href="https://instagram.com/yourbrand" target="_blank" rel="noreferrer" aria-label="Instagram" class="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">IG</a>
+                <a href="https://youtube.com/yourbrand" target="_blank" rel="noreferrer" aria-label="YouTube" class="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">YT</a>
+                <a href="https://aparat.com/yourbrand" target="_blank" rel="noreferrer" aria-label="Aparat" class="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">AP</a>
+                <a href="https://t.me/yourbot" target="_blank" rel="noreferrer" aria-label="Telegram" class="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">TG</a>
+                <a href="https://linkedin.com/company/yourbrand" target="_blank" rel="noreferrer" aria-label="LinkedIn" class="p-2 rounded-full hover:bg-[rgba(15,169,156,0.06)] transition">IN</a>
+            </div>
+        `;
+
+        const Hero = () => {
+            const dir = getDir(state.lang);
+            const categories = getCategories();
+
+            return `
+            <header class="relative overflow-hidden" style="background: var(--bg)">
+                <div class="absolute inset-0 -z-10">
+                    <video src="${videoUrl}" autoPlay muted loop playsInline class="w-full h-full object-cover brightness-90"></video>
+                    <div class="absolute inset-0" style="background: ${state.theme === 'dark' ? 'linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.6))' : 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02))'}"></div>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-6 py-20">
+                    <nav class="flex items-center justify-between">
+                        ${Logo()}
+                        <div class="flex items-center gap-4">
+                            <div class="hidden md:flex items-center gap-3 bg-[rgba(255,255,255,0.02)] rounded-full px-3 py-1">
+                                ${categories.map(c => `
+                                    <div key="${c.key}" class="relative group">
+                                        <button onclick="openCategory('${c.key}')" class="px-3 py-2 rounded-full text-sm font-medium hover:text-[var(--accent)] transition">${c.label}</button>
+                                        ${c.subs.length > 0 ? `
+                                            <div class="absolute ${dir === 'rtl' ? 'right-0' : 'left-0'} top-full mt-2 w-44 bg-[var(--surface)] rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transform group-hover:translate-y-0 transition-all z-20 group-hover-content">
+                                                <ul class="p-2">
+                                                    ${c.subs.map(s => `<li key="${s}"><button class="block w-full text-sm py-1 ${dir === 'rtl' ? 'text-right' : 'text-left'}">${s}</button></li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <a href="${catalogUrl}" download class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium shadow" style="background: ${ACCENT}; color: #fff;">${getText('Download Catalog','دانلود کاتالوگ')}</a>
+
+                            <div class="flex items-center gap-2">
+                                <button onclick="handleThemeToggle()" class="p-2 rounded-full" aria-label="Toggle theme">${state.theme === 'light' ? '🌞' : '🌙'}</button>
+                                <select aria-label="Language" onchange="handleLangChange(this.value)" class="px-2 py-1 rounded bg-transparent">
+                                    <option value="fa" ${state.lang === 'fa' ? 'selected' : ''}>FA</option>
+                                    <option value="en" ${state.lang === 'en' ? 'selected' : ''}>EN</option>
+                                </select>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <div class="mt-12 max-w-5xl ${dir === 'rtl' ? 'text-right' : 'text-left'}">
+                        <div class="inline-flex items-center gap-3 mb-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background: rgba(15,169,156,0.12); color: ${ACCENT};">${getText('New Collection','مجموعه جدید')}</span>
+                            <div class="text-sm opacity-80">${getText('Crafted for modern kitchens','طراحی شده برای آشپزخانه‌های مدرن')}</div>
+                        </div>
+
+                        <h1 class="text-4xl md:text-6xl font-extrabold leading-tight" style="color: var(--text)">${getText('Where innovation meets kitchen','جایی که نوآوری با آشپزخانه ملاقات می‌کند')}</h1>
+                        <p class="mt-4 text-lg md:text-xl opacity-90 max-w-2xl">${getText('MixPlus blends timeless materials, precise engineering and elegant design to craft appliances that elevate daily life.','میکس پلاس مواد ماندگار، مهندسی دقیق و طراحی لطیف را ترکیب می‌کند تا محصولاتی بسازد که کیفیت زندگی روزانه را ارتقا دهند.')}</p>
+
+                        <div class="mt-8 flex flex-wrap gap-4">
+                            <a href="#/about" class="px-6 py-3 rounded-3xl font-semibold shadow" style="background: ${ACCENT}; color: #fff;">${getText('Discover Brand','آشنایی با برند')}</a>
+                            <a href="#/products" class="px-6 py-3 rounded-3xl border font-semibold" style="border-color: rgba(15,169,156,0.12); color: var(--text);">${getText('Explore Products','مشاهده محصولات')}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-20 -translate-y-6 pointer-events-none" style="background: linear-gradient(180deg, transparent, var(--bg))"></div>
+            </header>
+            `;
+        };
+
+        const About = () => `
+            <section class="max-w-7xl mx-auto px-6 py-20">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <h2 class="text-3xl font-bold">${getText('A legacy of craft & care','میراثی از صنعت و دقت')}</h2>
+                        <p class="text-lg opacity-90">${getText('Since our founding, MixPlus has focused on durable materials and careful engineering. From the factory to your kitchen, our products reflect rigorous testing and refined design language.','از آغاز، میکس پلاس روی متریال با دوام و مهندسی دقیق تمرکز کرده است. از کارخانه تا آشپزخانه شما، محصولات ما نتیجهٔ تست‌های دقیق و زبان طراحی پالوده‌اند.')}</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                            <div class="p-4 rounded-xl" style="border: 1px solid rgba(15,169,156,0.08)">
+                                <div class="font-semibold">${getText('Sustainable materials','متریال پایدار')}</div>
+                                <div class="text-sm opacity-80 mt-1">${getText('Recyclable steel and low-impact packaging.','استیل قابل بازیافت و بسته‌بندی کم‌اثر.')}</div>
+                            </div>
+                            <div class="p-4 rounded-xl" style="border: 1px solid rgba(15,169,156,0.08)">
+                                <div class="font-semibold">${getText('R&D & Certification','تحقیق و توسعه')}</div>
+                                <div class="text-sm opacity-80 mt-1">${getText('Quality tests and certifications for safety and performance.','تست‌های کیفیت و گواهی‌ها برای ایمنی و عملکرد.')}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="rounded-xl overflow-hidden shadow-lg">
+                            <img src="/media/brand-factory.jpg" alt="factory" class="w-full h-96 object-cover" />
+                        </div>
+                        <div class="absolute top-6 left-6 p-3 rounded-lg" style="background: rgba(255,255,255,0.06)">
+                            <div class="text-xs opacity-80">${getText('Factory Tour','بازدید کارخانه')}</div>
+                            <div class="font-semibold">${getText('See how we build','نگاهی به فرآیند تولید')}</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        const ProductTeaser = () => `
+            <section class="max-w-7xl mx-auto px-6 py-16 bg-[var(--surface)] rounded-2xl mx-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold">${getText('Featured products','محصولات منتخب')}</h3>
+                    <a href="#/products" class="text-sm opacity-80">${getText('See all products','مشاهده همه')}</a>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    ${PRODUCTS.slice(0, 4).map(p => `
+                        <div key="${p.id}" class="bg-gradient-to-tr from-[rgba(15,169,156,0.04)] to-transparent rounded-xl p-4 shadow group cursor-pointer" 
+                             onclick="window.location.hash='/product/${p.id}'"
+                             onmouseenter="handleProductHover('${p.id}', '${p.images[1] || p.images[0]}')"
+                             onmouseleave="handleProductLeave('${p.id}')">
+                            
+                            <div class="relative h-44 rounded overflow-hidden">
+                                <img src="${state.hoverImage[p.id] || p.images[0]}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                            </div>
+                            <div class="mt-3">
+                                <div class="font-semibold">${state.lang === 'fa' ? p.titleFa : p.title}</div>
+                                <div class="text-sm opacity-80">${state.lang === 'fa' ? p.shortFa : p.short}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+        `;
+
+        const Features = () => `
+            <section class="max-w-7xl mx-auto px-6 py-20">
+                <h3 class="text-2xl font-bold mb-6">${getText('Why MixPlus','چرا میکس پلاس')}</h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-6 rounded-xl" style="border: 1px solid rgba(15,169,156,0.06)">
+                        <div class="text-3xl font-bold mb-2">${getText('Precision','دقت')}</div>
+                        <div class="text-sm opacity-80">${getText('Precision-engineered components for lasting performance.','قطعات مهندسی‌شده برای عملکرد پایدار.')}</div>
+                    </div>
+                    <div class="p-6 rounded-xl" style="border: 1px solid rgba(15,169,156,0.06)">
+                        <div class="text-3xl font-bold mb-2">${getText('Design','طراحی')}</div>
+                        <div class="text-sm opacity-80">${getText('Minimalist aesthetic that fits modern kitchens.','زیبایی‌شناسی مینیمال مناسب آشپزخانه‌های مدرن.')}</div>
+                    </div>
+                    <div class="p-6 rounded-xl" style="border: 1px solid rgba(15,169,156,0.06)">
+                        <div class="text-3xl font-bold mb-2">${getText('Support','پشتیبانی')}</div>
+                        <div class="text-sm opacity-80">${getText('Nationwide service network and fast spare parts.','شبکه خدمات سراسری و قطعات یدکی سریع.')}</div>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        const Timeline = () => `
+            <section class="max-w-7xl mx-auto px-6 py-20 bg-[rgba(15,169,156,0.02)] rounded-2xl mx-6">
+                <h3 class="text-2xl font-bold mb-6">${getText('Our story','داستان ما')}</h3>
+                <div class="space-y-8">
+                    <div class="flex items-start gap-6">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)] text-white font-semibold flex-shrink-0">1998</div>
+                        <div>
+                            <div class="font-semibold">${getText('Founded','تأسیس')}</div>
+                            <div class="text-sm opacity-80">${getText('Started as a small workshop and grew into a national brand.','شروع به‌عنوان یک کارگاه کوچک و رشد تا تبدیل‌شدن به یک برند ملی.')}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-6">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--accent)] text-white font-semibold flex-shrink-0">2010</div>
+                        <div>
+                            <div class="font-semibold">${getText('Export & Expansion','صادرات و توسعه')}</div>
+                            <div class="text-sm opacity-80">${getText('Expanded product lines and began exporting.','گسترش خطوط محصول و آغاز صادرات.')}</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        const Gallery = () => `
+            <section class="max-w-7xl mx-auto px-6 py-20">
+                <h3 class="text-2xl font-bold mb-6">${getText('Gallery','گالری')}</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <img src="/media/gallery-1.jpg" alt="Gallery Image 1" class="w-full h-44 object-cover rounded" />
+                    <img src="/media/gallery-2.jpg" alt="Gallery Image 2" class="w-full h-44 object-cover rounded" />
+                    <img src="/media/gallery-3.jpg" alt="Gallery Image 3" class="w-full h-44 object-cover rounded" />
+                    <img src="/media/gallery-4.jpg" alt="Gallery Image 4" class="w-full h-44 object-cover rounded" />
+                </div>
+            </section>
+        `;
+
+        const CTA = () => `
+            <section class="max-w-7xl mx-auto px-6 py-20 bg-[var(--accent)] text-white rounded-2xl mx-6">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h3 class="text-2xl font-bold">${getText('Get the digital catalog','کاتالوگ دیجیتال را دریافت کنید')}</h3>
+                        <p class="opacity-90 mt-2">${getText('Download the full MixPlus catalog with specifications and installation guides.','کاتالوگ کامل میکس پلاس همراه با مشخصات و راهنمای نصب را دانلود کنید.')}</p>
+                    </div>
+                    <div class="flex gap-3 flex-shrink-0">
+                        <a href="${catalogUrl}" download class="px-6 py-3 rounded-full bg-white text-[var(--accent)] font-semibold">${getText('Download','دانلود')}</a>
+                        <a href="#/dealers" class="px-6 py-3 rounded-full border border-white/30">${getText('Find a dealer','یافتن نمایندگی')}</a>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        const DealersContact = () => `
+            <section class="max-w-7xl mx-auto px-6 py-20">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-semibold">${getText('Authorized Dealers','نمایندگی های مجاز')}</h4>
+                        <p class="mt-3 text-sm opacity-80">${getText('We have a national network of authorized dealers. Find your nearest one.','ما شبکه ملی نمایندگی‌های مجاز داریم. نزدیک‌ترین نمایندگی را بیابید.')}</p>
+                        <ul class="mt-4 text-sm space-y-2">
+                            <li>• ${getText('Dealer City 1','نمایندگی — شهر ۱')}</li>
+                            <li>• ${getText('Dealer City 2','نمایندگی — شهر ۲')}</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold">${getText('Contact Us','تماس با ما')}</h4>
+                        <p class="mt-3 text-sm opacity-80">${getText('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
+                        <p class="mt-1 text-sm opacity-80">${getText('Email: support@mixplus.example','ایمیل: support@mixplus.example')}</p>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        const Footer = () => `
+            <footer class="mt-12" style="background: var(--surface); color: var(--text)">
+                <div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <div class="flex items-center gap-3"><img src="${logoUrl}" alt="MixPlus" class="h-10" /><div class="font-semibold">MixPlus</div></div>
+                        <p class="mt-3 text-sm opacity-80">${getText('Kitchen appliances designed to last.','تجهیزات آشپزخانه طراحی‌شده برای ماندگاری.')}</p>
+                        <div class="mt-4">${Social()}</div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">${getText('Quick Links','لینک‌های سریع')}</h4>
+                        <ul class="mt-3 space-y-2 text-sm opacity-90">
+                            <li><a href="#/products">${getText('Products','محصولات')}</a></li>
+                            <li><a href="#/services">${getText('After Sales','خدمات پس از فروش')}</a></li>
+                            <li><a href="#/dealers">${getText('Dealers','نمایندگی‌ها')}</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">${getText('Factory Address','آدرس کارخانه')}</h4>
+                        <p class="mt-3 text-sm opacity-90">${getText('123 Industrial Zone, City Name, Country','منطقه صنعتی ۱۲۳، شهر، کشور')}</p>
+                        <p class="mt-2 text-sm">${getText('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        const DealersContact = () => `
+            <section class="max-w-7xl mx-auto px-6 py-20">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-semibold">${t('Authorized Dealers','نمایندگی های مجاز')}</h4>
+                        <p class="mt-3 text-sm opacity-80">${t('We have a national network of authorized dealers. Find your nearest one.','ما شبکه ملی نمایندگی‌های مجاز داریم. نزدیک‌ترین نمایندگی را بیابید.')}</p>
+                        <ul class="mt-4 text-sm space-y-2">
+                            <li>• ${t('Dealer City 1','نمایندگی — شهر ۱')}</li>
+                            <li>• ${t('Dealer City 2','نمایندگی — شهر ۲')}</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold">${t('Contact Us','تماس با ما')}</h4>
+                        <p class="mt-3 text-sm opacity-80">${t('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
+                        <p class="mt-1 text-sm opacity-80">${t('Email: support@mixplus.example','ایمیل: support@mixplus.example')}</p>
+                    </div>
+                </div>
+            </section>
+        `;
+
+        const Footer = () => `
+            <footer class="mt-12" style="background: var(--surface); color: var(--text)">
+                <div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <div class="flex items-center gap-3"><img src="${logoUrl}" alt="MixPlus" class="h-10" /><div class="font-semibold">MixPlus</div></div>
+                        <p class="mt-3 text-sm opacity-80">${t('Kitchen appliances designed to last.','تجهیزات آشپزخانه طراحی‌شده برای ماندگاری.')}</p>
+                        <div class="mt-4">${Social()}</div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">${t('Quick Links','لینک‌های سریع')}</h4>
+                        <ul class="mt-3 space-y-2 text-sm opacity-90">
+                            <li><a href="#/products">${t('Products','محصولات')}</a></li>
+                            <li><a href="#/services">${t('After Sales','خدمات پس از فروش')}</a></li>
+                            <li><a href="#/dealers">${t('Dealers','نمایندگی‌ها')}</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold">${t('Factory Address','آدرس کارخانه')}</h4>
+                        <p class="mt-3 text-sm opacity-90">${t('123 Industrial Zone, City Name, Country','منطقه صنعتی ۱۲۳، شهر، کشور')}</p>
+                        <p class="mt-2 text-sm">${t('Phone: +98 21 1234 5678','تلفن: ۰۲۱-۱۲۳۴۵۶۷۸')}</p>
+                    </div>
+                </div>
+                <div class="text-center py-4 text-xs opacity-80 border-t" style="border-color: rgba(128,128,128,0.1)">© ${new Date().getFullYear()} MixPlus</div>
+            </footer>
+        `;
+
+        const ProductsPage = ({ queryCat }) => {
+            const filtered = queryCat ? PRODUCTS.filter(p => p.category === queryCat) : PRODUCTS;
+            return `
+            <section class="max-w-7xl mx-auto px-6 py-12">
+                <h2 class="text-2xl font-bold">${getText('Products','محصولات')} ${queryCat ? `(${queryCat})` : ''}</h2>
+                <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${filtered.map(p => `
+                        <div key="${p.id}" class="bg-[var(--surface)] rounded-xl p-4 shadow group hover:shadow-xl transition cursor-pointer" 
+                             onclick="window.location.hash='/product/${p.id}'"
+                             onmouseenter="handleProductHover('${p.id}', '${p.images[1] || p.images[0]}')"
+                             onmouseleave="handleProductLeave('${p.id}')">
+                            
+                            <div class="relative h-44 rounded overflow-hidden">
+                                <img src="${state.hoverImage[p.id] || p.images[0]}" alt="${p.title}" class="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                            </div>
+                            <div class="mt-3">
+                                <div class="font-semibold">${state.lang === 'fa' ? p.titleFa : p.title}</div>
+                                <div class="text-sm opacity-80">${state.lang === 'fa' ? p.shortFa : p.short}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+            `;
+        };
+        
+        const ProductDetail = ({ id }) => {
+            const p = PRODUCTS.find(x => x.id === id);
+            if (!p) return `<div class="p-8">${getText('Product not found','محصول یافت نشد')}</div>`;
+            
+            return `
+            <section class="max-w-5xl mx-auto px-6 py-12">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="rounded-xl overflow-hidden h-96">
+                            <img src="${state.hoverImage[p.id] || p.images[0]}" alt="${p.title}" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="flex gap-3 mt-3">
+                            ${p.images.map((img, idx) => `
+                                <button key="${idx}" 
+                                        onclick="handleProductHover('${p.id}', '${img}')" 
+                                        class="w-20 h-14 rounded overflow-hidden border ${ (state.hoverImage[p.id] || p.images[0]) === img ? 'border-[var(--accent)]' : 'border-transparent' }">
+                                    <img src="${img}" alt="Thumbnail ${idx+1}" class="w-full h-full object-cover" />
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold">${state.lang === 'fa' ? p.titleFa : p.title}</h3>
+                        <p class="mt-3 opacity-90">${state.lang === 'fa' ? p.shortFa : p.short}</p>
+                        <div class="mt-6">
+                            <h4 class="font-semibold">${getText('Specifications','مشخصات')}</h4>
+                            <div class="mt-2 space-y-2">
+                                ${Object.entries(p.specs).map(([k,v]) => `
+                                    <div key="${k}" class="flex justify-between border-b py-2" style="border-color: rgba(128,128,128,0.1)">
+                                        <div class="font-medium">${k}</div>
+                                        <div class="opacity-80">${v}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <a href="${catalogUrl}" download class="px-4 py-2 rounded bg-[var(--accent)] text-white">${getText('Download brochure','دانلود بروشور')}</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            `;
+        };
+
+        /**
+         * مسیریاب ساده بر اساس هش (hash)
+         */
+        const renderRoute = () => {
+            const route = state.route;
+
+            if (route === '/' || route === '') {
+                return `
+                    ${About()}
+                    ${ProductTeaser()}
+                    ${Features()}
+                    ${Timeline()}
+                    ${Gallery()}
+                    ${CTA()}
+                    ${DealersContact()}
+                `;
+            }
+            if (route.startsWith('/products')) {
+                const params = new URLSearchParams(route.split('?')[1] || '');
+                const cat = params.get('cat');
+                return ProductsPage({ queryCat: cat });
+            }
+            if (route.startsWith('/product/')) {
+                const id = route.split('/')[2];
+                return ProductDetail({ id: id });
+            }
+            if (route === '/about') {
+                return `<section class="max-w-5xl mx-auto px-6 py-12"><h2 class="text-2xl font-bold">${getText('About MixPlus','درباره میکس پلاس')}</h2><p class="mt-3">${getText('Detailed about content here.','متن معرفی مفصل در اینجا.')}</p></section>`;
+            }
+            if (route === '/services') {
+                return `<section class="max-w-5xl mx-auto px-6 py-12"><h2>${getText('After Sales Services','خدمات پس از فروش')}</h2></section>`;
+            }
+            if (route === '/dealers') {
+                return `<section class="max-w-5xl mx-auto px-6 py-12"><h2>${getText('Authorized Dealers','نمایندگی های مجاز')}</h2></section>`;
+            }
+            return `<section class="p-8 text-center">${getText('Page not found','صفحه مورد نظر یافت نشد')}</section>`;
+        };
+
+        /**
+         * تابع اصلی رندر برنامه
+         */
+        const App = () => `
+            ${Hero()}
+            <main>
+                ${renderRoute()}
+            </main>
+            ${Footer()}
+        `;
+
+        // --- 5. مدیریت رویدادها (Event Handlers) ---
+
+        function handleLangChange(newLang) {
+            setState({ lang: newLang });
+        }
+
+        function handleThemeToggle() {
+            const newTheme = state.theme === 'light' ? 'dark' : 'light';
+            setState({ theme: newTheme });
+        }
+
+        function handleProductHover(id, imageUrl) {
+            // برای هاور شدن یا کلیک روی تامبنیل
+            setState({ hoverImage: { ...state.hoverImage, [id]: imageUrl } });
+        }
+
+        function handleProductLeave(id) {
+            // برای خروج موس از روی محصول
+            setState({ hoverImage: { ...state.hoverImage, [id]: undefined } });
+        }
+        
+        function openCategory(cat) {
+            window.location.hash = `/products?cat=${encodeURIComponent(cat)}`;
+        }
+
+        /**
+         * تابع اصلی رندر که وضعیت DOM را به‌روز می‌کند
+         */
+        function renderApp() {
+            // 1. به‌روزرسانی اتریبیوت‌های سراسری (معادل useEffect در React)
+            const dir = getDir(state.lang);
+            document.documentElement.setAttribute('lang', state.lang);
+            document.documentElement.setAttribute('dir', dir);
+            document.documentElement.setAttribute('data-theme', state.theme);
+            document.body.setAttribute('data-lang', state.lang); // برای اعمال فونت
+
+            // 2. به‌روزرسانی متغیرهای CSS
+            document.documentElement.style.setProperty('--accent', ACCENT);
+            if (state.theme === 'dark') {
+                document.documentElement.style.setProperty('--bg', '#000000');
+                document.documentElement.style.setProperty('--surface', '#0f1111');
+                document.documentElement.style.setProperty('--text', '#e6e6e6');
+            } else {
+                document.documentElement.style.setProperty('--bg', '#ffffff');
+                document.documentElement.style.setProperty('--surface', '#ffffff');
+                document.documentElement.style.setProperty('--text', '#0b0b0b');
+            }
+
+            // 3. رندر کردن HTML در ریشه برنامه
+            // این کار معادل رندر مجدد در React است
+            appRoot.innerHTML = App();
+        }
+
+        // --- 6. راه‌اندازی برنامه ---
+
+        // شنونده برای تغییرات هش (مسیریابی)
+        window.addEventListener('hashchange', () => {
+            setState({ route: window.location.hash.replace('#','') || '/' });
+        });
+
+        // رندر اولیه برنامه پس از بارگذاری کامل DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            // اطمینان از اینکه وضعیت اولیه با هش فعلی مطابقت دارد
+            setState({ route: window.location.hash.replace('#','') || '/' });
+            // renderApp() به طور خودکار توسط setState فراخوانی می‌شود
+        });
+
+    </script>
+</body>
+</html>
